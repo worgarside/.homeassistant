@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+homeassistant = "*"
+pip = "==18.0"
+"beautifulsoup4" = "*"
+google-api-python-client = "*"
+google-auth-oauthlib = "*"
+myfitnesspal = "*"
+locationsharinglib = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"

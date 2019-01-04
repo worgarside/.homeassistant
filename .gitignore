@@ -1,0 +1,12 @@
+.idea
+__pycache__
+*.db
+.storage
+*.env
+.cloud
+secrets.yaml
+.storage
+secret_files/*
+home-assistant.log
+.uuid
+.HA_VERSION
