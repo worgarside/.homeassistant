@@ -10,6 +10,17 @@ homeassistant:
 recorder:
   db_url: !secret db_url
   purge_keep_days: 3650
+  exclude:
+    entities:
+      - persistent_notification.config_entry_discovery
+      - persistent_notification.httplogin
+      - persistent_notification.homeassistantcheck_config
+      - device_tracker.google_maps_113979464641038639988
+      - light.group_for_wakeup
+      - light.bedroom_hue_color_lamp
+      - light.study_hue_color_lamp
+      - zone.home
+      - group.all_devices
 
 # Show links to resources in log and frontend
 # introduction:
@@ -62,11 +73,12 @@ sensor:
       - wind_speed
   - platform: ee
   - platform: google_fit
+  - platform: my_fitness_pal
     
-device_tracker:
-  - platform: google_maps
-    username: !secret dev_email
-    password: !secret dev_password
+#device_tracker:
+#  - platform: google_maps
+#    username: !secret dev_email
+#    password: !secret dev_password
 
 # Text to speech
 tts:
