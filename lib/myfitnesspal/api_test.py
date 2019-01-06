@@ -1,12 +1,10 @@
-from myfitnesspal import Client
-from datetime import datetime, timedelta
+from datetime import datetime
 from os import getenv
 
 from dotenv import load_dotenv
+from myfitnesspal import Client
 
-ENV_VARS = '../../secret_files/.env'
-
-load_dotenv(ENV_VARS)
+load_dotenv('../../secret_files/.env')
 
 USERNAME = getenv('EMAIL')
 PASSWORD = getenv('MFP_PASSWORD')

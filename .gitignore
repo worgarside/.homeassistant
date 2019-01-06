@@ -10,3 +10,4 @@ secret_files/*
 home-assistant.log
 .uuid
 .HA_VERSION
+known_devices.yaml

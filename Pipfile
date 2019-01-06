@@ -6,11 +6,12 @@ name = "pypi"
 [packages]
 homeassistant = "*"
 pip = "==18.0"
-"beautifulsoup4" = "*"
+"beautifulsoup4" = "~=4.6.3"
 google-api-python-client = "*"
 google-auth-oauthlib = "*"
-myfitnesspal = "*"
 locationsharinglib = "*"
+myfitnesspal = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

@@ -5,25 +5,29 @@ from dotenv import load_dotenv
 from homeassistant.const import MASS_GRAMS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-from myfitnesspal import Client
 
-ENV_VARS = '../../secret_files/.env'
+REQUIREMENTS = ['myfitnesspal', 'python-dotenv']
 
-load_dotenv(ENV_VARS)
-
-USERNAME = getenv('EMAIL')
+load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
+EMAIL = getenv('EMAIL')
 PASSWORD = getenv('MFP_PASSWORD')
 
-REQUIREMENTS = ['python-dotenv', 'myfitnesspal']
 
-NOW = datetime.now()
+def log(m='', newline=False):
+    now = datetime.now()
 
-MFP_CLIENT = Client(USERNAME, PASSWORD)
-TODAY_MFP = MFP_CLIENT.get_date(NOW.year, NOW.month, NOW.day)
+    with open('/home/pi/Projects/wg-utils/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
+              'a') as f:
+        if newline:
+            f.write('\n')
+        f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
+                .format(now.year, now.month, now.day, now.hour, now.minute, now.second, m)
+                )
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    add_devices([CalorieConsumptionSensor()])
+    add_devices([CalorieConsumptionSensor(), CarbohydrateConsumptionSensor(), FatConsumptionSensor(),
+                 ProteinConsumptionSensor(), SodiumConsumptionSensor(), SugarConsumptionSensor()])
 
 
 class CalorieConsumptionSensor(Entity):
@@ -44,7 +48,14 @@ class CalorieConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        self._state = TODAY_MFP.totals.get('calories', 0)
+        log('MFP: Calories')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = Client(EMAIL, PASSWORD) \
+            .get_date(now.year, now.month, now.day) \
+            .totals \
+            .get('calories', 0)
 
 
 class CarbohydrateConsumptionSensor(Entity):
@@ -65,7 +76,14 @@ class CarbohydrateConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        self._state = TODAY_MFP.totals.get('carbohydrates', 0)
+        log('MFP: Carbohydrates')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = Client(EMAIL, PASSWORD) \
+            .get_date(now.year, now.month, now.day) \
+            .totals \
+            .get('carbohydrates', 0)
 
 
 class FatConsumptionSensor(Entity):
@@ -86,7 +104,14 @@ class FatConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        self._state = TODAY_MFP.totals.get('fat', 0)
+        log('MFP: Fat')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = Client(EMAIL, PASSWORD) \
+            .get_date(now.year, now.month, now.day) \
+            .totals \
+            .get('fat', 0)
 
 
 class ProteinConsumptionSensor(Entity):
@@ -105,9 +130,16 @@ class ProteinConsumptionSensor(Entity):
     def unit_of_measurement(self):
         return MASS_GRAMS
 
-    @Throttle(timedelta(minutes=30))
+    @Throttle(timedelta(minutes=10))
     def update(self):
-        self._state = TODAY_MFP.totals.get('protein', 0)
+        log('MFP: Protein')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = Client(EMAIL, PASSWORD) \
+            .get_date(now.year, now.month, now.day) \
+            .totals \
+            .get('protein', 0)
 
 
 class SodiumConsumptionSensor(Entity):
@@ -128,7 +160,14 @@ class SodiumConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        self._state = TODAY_MFP.totals.get('sodium', 0)
+        log('MFP: Sodium')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = round(Client(EMAIL, PASSWORD)
+                            .get_date(now.year, now.month, now.day)
+                            .totals
+                            .get('sodium', 0) / 1000.0, 2)
 
 
 class SugarConsumptionSensor(Entity):
@@ -149,4 +188,11 @@ class SugarConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        self._state = TODAY_MFP.totals.get('sugar', 0)
+        log('MFP: Sugar')
+        from myfitnesspal import Client
+        now = datetime.now()
+
+        self._state = Client(EMAIL, PASSWORD) \
+            .get_date(now.year, now.month, now.day) \
+            .totals \
+            .get('sugar', 0)

@@ -18,18 +18,22 @@ SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read',
           'https://www.googleapis.com/auth/fitness.nutrition.read']
 MAX_RETRIES = 5
 
-NOW = int(datetime.now().timestamp())
-NOW_NANO = NOW * 1000000000
-DAY_START = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-ONE_HOUR_AGO = (NOW - 3600) * 1000000000
-TWO_MINS_AGO = (NOW - 120) * 1000000000
-
 REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
 
 
+def log(m='', newline=False):
+    now = datetime.now()
+    with open('/home/pi/Projects/wg-utils/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
+              'a') as f:
+        if newline:
+            f.write('\n')
+        f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
+                .format(now.year, now.month, now.day, now.hour, now.minute, now.second, m)
+                )
+
+
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    add_devices([DailyStepCountSensor(), CumulativeStepCountSensor(), BodyWeightSensor(), CalorieExpenditureSensor(),
-                 SpeedSensor()])
+    add_devices([DailyStepCountSensor(), CumulativeStepCountSensor(), BodyWeightSensor(), CalorieExpenditureSensor()])
 
 
 def _get_client(credentials_dict):
@@ -38,6 +42,7 @@ def _get_client(credentials_dict):
     from googleapiclient.discovery import build
     from time import sleep
     from ssl import SSLEOFError
+    from socket import timeout
 
     updated_credentials = Credentials(
         credentials_dict['token'],
@@ -61,18 +66,19 @@ def _get_client(credentials_dict):
         try:
             client = build(API_SERVICE_NAME, API_VERSION, credentials=updated_credentials, cache_discovery=False)
             return client
-        except SSLEOFError as e:
+        except (SSLEOFError, ConnectionResetError, timeout) as e:
             sleep(2.5)
             if retry_count < MAX_RETRIES:
                 retry_count += 1
                 continue
             else:
-                raise SSLEOFError(e)
+                exit(e)
 
 
 def _get_dataset(client, data_source, dataset):
     from ssl import SSLEOFError
     from time import sleep
+    from socket import timeout
 
     retry_count = 0
     while True:
@@ -80,22 +86,26 @@ def _get_dataset(client, data_source, dataset):
             dataset = client.users().dataSources().datasets(). \
                 get(userId=USER_ID, dataSourceId=data_source, datasetId=dataset).execute()
             return dataset
-        except SSLEOFError as e:
-            sleep(2.5)
+        except (SSLEOFError, ConnectionResetError, timeout) as e:
+            sleep(1)
             if retry_count < MAX_RETRIES:
                 retry_count += 1
                 continue
             else:
-                raise SSLEOFError(e)
+                exit(e)
 
 
 class DailyStepCountSensor(Entity):
     def __init__(self):
         from json import load
 
+        now = int(datetime.now().timestamp())
+        now_nano = now * 1000000000
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._dataset = '{}-{}'.format(DAY_START, NOW_NANO)
+        self._dataset = '{}-{}'.format(day_start, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
         self._client = _get_client(self._credentials)
@@ -114,11 +124,14 @@ class DailyStepCountSensor(Entity):
 
     @Throttle(timedelta(minutes=5))
     def update(self):
+        log('Google Fit: Daily Step Count')
+
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         step_count = 0
         for point in dataset['point']:
-            if int(point['startTimeNanos']) > DAY_START:
+            if int(point['startTimeNanos']) > day_start:
                 step_count += point['value'][0]['intVal']
 
         self._state = step_count
@@ -128,9 +141,13 @@ class CumulativeStepCountSensor(Entity):
     def __init__(self):
         from json import load
 
+        now = int(datetime.now().timestamp())
+        now_nano = now * 1000000000
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._dataset = '{}-{}'.format(DAY_START, NOW_NANO)
+        self._dataset = '{}-{}'.format(day_start, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
         self._client = _get_client(self._credentials)
@@ -149,6 +166,7 @@ class CumulativeStepCountSensor(Entity):
 
     @Throttle(timedelta(minutes=5))
     def update(self):
+        log('Google Fit: Cumulative Step Count')
         from pickle import load, dump
 
         pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
@@ -172,9 +190,13 @@ class BodyWeightSensor(Entity):
     def __init__(self):
         from json import load
 
+        now = int(datetime.now().timestamp())
+        now_nano = now * 1000000000
+        one_hour_ago = (now - 3600) * 1000000000
+
         self._state = None
         self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
-        self._dataset = '{}-{}'.format(ONE_HOUR_AGO, NOW_NANO)
+        self._dataset = '{}-{}'.format(one_hour_ago, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
 
@@ -192,9 +214,9 @@ class BodyWeightSensor(Entity):
     def unit_of_measurement(self):
         return MASS_KILOGRAMS
 
-    @Throttle(timedelta(minutes=60))
+    @Throttle(timedelta(minutes=5))
     def update(self):
-
+        log('Google Fit: Body Weight')
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         if len(dataset['point']) == 1:
@@ -206,16 +228,20 @@ class BodyWeightSensor(Entity):
                 if float(point['endTimeNanos']) > max_time:
                     max_time = float(point['endTimeNanos'])
                     weight = point['value'][0]['fpVal']
-            self._state = weight if not weight == 0 else self._state
+            self._state = round(weight, 2) if not weight == 0 else None
 
 
 class CalorieExpenditureSensor(Entity):
     def __init__(self):
         from json import load
 
+        now = int(datetime.now().timestamp())
+        now_nano = now * 1000000000
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+
         self._state = None
         self._data_source = 'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended'
-        self._dataset = '{}-{}'.format(DAY_START, NOW_NANO)
+        self._dataset = '{}-{}'.format(day_start, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
 
@@ -233,57 +259,16 @@ class CalorieExpenditureSensor(Entity):
     def unit_of_measurement(self):
         return 'kcal'
 
-    @Throttle(timedelta(minutes=15))
+    @Throttle(timedelta(minutes=5))
     def update(self):
+        log('Google Fit: Calories Expended')
+
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         cal_count = 0
         for point in dataset['point']:
-            if int(point['startTimeNanos']) > DAY_START:
+            if int(point['startTimeNanos']) > day_start:
                 cal_count += point['value'][0]['fpVal']
 
         self._state = int(cal_count)
-
-
-class SpeedSensor(Entity):
-    def __init__(self):
-        from json import load
-
-        self._state = None
-        self._data_source = 'derived:com.google.speed:com.google.android.gms:merge_speed'
-        self._dataset = '{}-{}'.format(TWO_MINS_AGO, NOW_NANO)
-        with open(CREDENTIALS_FILE, 'r') as f:
-            self._credentials = load(f)
-
-        self._client = _get_client(self._credentials)
-
-    @property
-    def name(self):
-        return 'Instantaneous Speed Over Ground'
-
-    @property
-    def state(self):
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        return 'm/s'
-
-    def update(self):
-
-        dataset = _get_dataset(self._client, self._data_source, self._dataset)
-
-        if len(dataset['point']) == 1 and int(dataset['point'][0]['startTimeNanos']) > DAY_START:
-            self._state = dataset['point'][0]['value'][0]['fpVal']
-        elif len(dataset['point']) > 1:
-            max_time = 0
-            speed = 0
-            for point in dataset['point']:
-                if int(point['startTimeNanos']) > DAY_START:
-                    if float(point['endTimeNanos']) > max_time:
-                        max_time = float(point['endTimeNanos'])
-                        speed = point['value'][0]['fpVal']
-
-            self._state = int(speed)
-        else:
-            self._state = 0
