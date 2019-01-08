@@ -74,6 +74,9 @@ sensor:
   - platform: ee
   - platform: google_fit
   - platform: my_fitness_pal
+  - platform: uptime
+    name: Time Online
+    unit_of_measurement: hours
     
 #device_tracker:
 #  - platform: google_maps

@@ -4,14 +4,14 @@ REQUIREMENTS = ['beautifulsoup4']
 
 
 def _get_remaining_data():
-    from requests import get
+    from requests import get, ReadTimeout
     from re import sub
     from bs4 import BeautifulSoup
     from time import sleep
 
     while True:
         try:
-            res = get('http://add-on.ee.co.uk/mbbstatus')
+            res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
 
             soup = BeautifulSoup(res.content, 'html.parser')
             for small in soup('small'):
@@ -24,7 +24,7 @@ def _get_remaining_data():
                 usage = usage / 1024
 
             return round(usage, 2)
-        except AttributeError:
+        except (AttributeError, ReadTimeout):
             sleep(1)
             continue
 
@@ -90,33 +90,42 @@ class ExpectedUsedDataSensor(Entity):
         return 'GB'
 
     def update(self):
-        from requests import get
+        from requests import get, ReadTimeout
         from bs4 import BeautifulSoup
         from datetime import datetime
         from math import ceil
+        from time import sleep
 
-        res = get('http://add-on.ee.co.uk/mbbstatus')
-        soup = BeautifulSoup(res.content, 'html.parser')
-        days_remaining, hours_remaining = [int(b.text) for b in
-                                           soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+        allowance = None
+        success = False
+        while not success:
+            try:
+                res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
+                soup = BeautifulSoup(res.content, 'html.parser')
+                days_remaining, hours_remaining = [int(b.text) for b in
+                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
 
-        now = datetime.now()
-        day = now.day
-        month = now.month
-        year = now.year
-        if day < 2:
-            month = now.month - 1
-            if month < 1:
-                month += 12
-                year = now.year - 1
+                now = datetime.now()
+                day = now.day
+                month = now.month
+                year = now.year
+                if day < 2:
+                    month = now.month - 1
+                    if month < 1:
+                        month += 12
+                        year = now.year - 1
 
-        start = datetime(year=year, month=month, day=2)
-        total_hours_since_start = ceil((int(now.timestamp()) - int(start.timestamp())) / 3600)
-        total_hours_remaining = (days_remaining * 24) + hours_remaining
-        hours_in_month = total_hours_since_start+ total_hours_remaining
-        hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-        expected_data_usage = hour_percentage_passed * 200
+                start = datetime(year=year, month=month, day=2)
+                total_hours_since_start = ceil((int(now.timestamp()) - int(start.timestamp())) / 3600)
+                total_hours_remaining = (days_remaining * 24) + hours_remaining
+                hours_in_month = total_hours_since_start + total_hours_remaining
+                hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
+                allowance = hour_percentage_passed * 200
+                success = True
+            except (AttributeError, ReadTimeout):
+                sleep(0.5)
+                continue
 
-        self._state = round(expected_data_usage, 1)
+        self._state = round(allowance, 1)
 
 
