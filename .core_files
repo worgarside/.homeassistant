@@ -8,6 +8,7 @@ lib/ee/ee_signal_strength.py
 lib/google_fit/api_test.py
 lib/google_fit/auth.py
 lib/myfitnesspal/api_test.py
+appdaemon.yaml
 automations.yaml
 configuration.yaml
 customize.yaml

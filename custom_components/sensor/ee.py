@@ -218,7 +218,7 @@ class DataSavingsSensor(Entity):
                         last_time = load(f)
 
                     if (datetime.now() - last_time) > 21600:
-                        _send_notification('EE Data Warning', f'Your data savings has dropped below 2GB: {savings}')
+                        _send_notification('EE Data Warning', 'Your data savings has dropped below 2GB: {}'.format(savings))
                         with open(pkl_file_path, 'wb') as f:
                             dump(datetime.now(), f)
 
