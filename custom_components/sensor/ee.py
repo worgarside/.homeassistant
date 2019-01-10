@@ -30,7 +30,7 @@ def _get_remaining_data():
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    add_devices([RemainingDataSensor(), UsedDataSensor(), ExpectedUsedDataSensor()])
+    add_devices([RemainingDataSensor(), UsedDataSensor(), ExpectedUsedDataSensor(), DataSavingsSensor()])
 
 
 class RemainingDataSensor(Entity):
@@ -96,9 +96,7 @@ class ExpectedUsedDataSensor(Entity):
         from math import ceil
         from time import sleep
 
-        allowance = None
-        success = False
-        while not success:
+        while True:
             try:
                 res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
                 soup = BeautifulSoup(res.content, 'html.parser')
@@ -120,12 +118,77 @@ class ExpectedUsedDataSensor(Entity):
                 total_hours_remaining = (days_remaining * 24) + hours_remaining
                 hours_in_month = total_hours_since_start + total_hours_remaining
                 hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-                allowance = hour_percentage_passed * 200
-                success = True
+                allowance = round(hour_percentage_passed * 200, 1)
+                break
             except (AttributeError, ReadTimeout):
                 sleep(0.5)
                 continue
 
-        self._state = round(allowance, 1)
+        self._state = allowance
 
 
+class DataSavingsSensor(Entity):
+    def __init__(self):
+        self._state = None
+
+    @property
+    def name(self):
+        return 'Data Savings'
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        return 'GB'
+
+    def update(self):
+        from requests import get, ReadTimeout
+        from bs4 import BeautifulSoup
+        from datetime import datetime
+        from math import ceil
+        from time import sleep
+        from re import sub
+
+        while True:
+            try:
+                res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
+                soup = BeautifulSoup(res.content, 'html.parser')
+                days_remaining, hours_remaining = [int(b.text) for b in
+                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+
+                now = datetime.now()
+                day = now.day
+                month = now.month
+                year = now.year
+                if day < 2:
+                    month = now.month - 1
+                    if month < 1:
+                        month += 12
+                        year = now.year - 1
+
+                start = datetime(year=year, month=month, day=2)
+                total_hours_since_start = ceil((int(now.timestamp()) - int(start.timestamp())) / 3600)
+                total_hours_remaining = (days_remaining * 24) + hours_remaining
+                hours_in_month = total_hours_since_start + total_hours_remaining
+                hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
+                allowance = round(hour_percentage_passed * 200, 1)
+
+                for small in soup('small'):
+                    small.decompose()
+                usage = float(
+                    sub(r"[\n\t\sA-Za-z]*", "", soup.body.find('span', attrs={'class': 'allowance__left'}).text)
+                )
+
+                if usage > 200:
+                    usage = usage / 1024
+
+                usage = round(usage, 2)
+                savings = allowance - usage
+                break
+            except (AttributeError, ReadTimeout):
+                sleep(0.5)
+                continue
+
+        self._state = savings
