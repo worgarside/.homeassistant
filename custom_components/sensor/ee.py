@@ -1,6 +1,14 @@
 from homeassistant.helpers.entity import Entity
 
-REQUIREMENTS = ['beautifulsoup4']
+from dotenv import load_dotenv
+from os import getenv
+
+REQUIREMENTS = ['beautifulsoup4', 'python-dotenv']
+
+load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
+
+PB_API_KEY = getenv('PB_API_KEY')
+DATA_LIMIT = 200.00
 
 
 def _get_remaining_data():
@@ -20,7 +28,7 @@ def _get_remaining_data():
                 sub(r"[\n\t\sA-Za-z]*", "", soup.body.find('span', attrs={'class': 'allowance__left'}).text)
             )
 
-            if usage > 200:
+            if usage > DATA_LIMIT:
                 usage = usage / 1024
 
             return round(usage, 2)
@@ -29,8 +37,25 @@ def _get_remaining_data():
             continue
 
 
+def _send_notification(t, m):
+    from requests import post
+    post(
+        'https://api.pushbullet.com/v2/pushes',
+        headers={
+            'Access-Token': PB_API_KEY,
+            'Content-Type': 'application/json'
+        },
+        json={
+            'body': m,
+            'title': t,
+            'type': 'note'
+        }
+    )
+
+
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    add_devices([RemainingDataSensor(), UsedDataSensor(), ExpectedUsedDataSensor(), DataSavingsSensor()])
+    add_devices([RemainingDataSensor(), UsedDataSensor(), DataAllowanceSensor(), DataSavingsSensor(),
+                 DataLimitSensor()])
 
 
 class RemainingDataSensor(Entity):
@@ -70,10 +95,10 @@ class UsedDataSensor(Entity):
         return 'GB'
 
     def update(self):
-        self._state = round(200.00 - _get_remaining_data(), 2)
+        self._state = round(DATA_LIMIT - _get_remaining_data(), 2)
 
 
-class ExpectedUsedDataSensor(Entity):
+class DataAllowanceSensor(Entity):
     def __init__(self):
         self._state = None
 
@@ -118,7 +143,7 @@ class ExpectedUsedDataSensor(Entity):
                 total_hours_remaining = (days_remaining * 24) + hours_remaining
                 hours_in_month = total_hours_since_start + total_hours_remaining
                 hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-                allowance = round(hour_percentage_passed * 200, 1)
+                allowance = round(hour_percentage_passed * DATA_LIMIT, 1)
                 break
             except (AttributeError, ReadTimeout):
                 sleep(0.5)
@@ -144,13 +169,13 @@ class DataSavingsSensor(Entity):
         return 'GB'
 
     def update(self):
-        from requests import get, ReadTimeout
+        from requests import get, ReadTimeout, post
         from bs4 import BeautifulSoup
         from datetime import datetime
         from math import ceil
         from time import sleep
         from re import sub
-
+        from pickle import dump, load
         while True:
             try:
                 res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
@@ -173,7 +198,7 @@ class DataSavingsSensor(Entity):
                 total_hours_remaining = (days_remaining * 24) + hours_remaining
                 hours_in_month = total_hours_since_start + total_hours_remaining
                 hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-                allowance = round(hour_percentage_passed * 200, 1)
+                allowance = round(hour_percentage_passed * DATA_LIMIT, 1)
 
                 for small in soup('small'):
                     small.decompose()
@@ -181,14 +206,45 @@ class DataSavingsSensor(Entity):
                     sub(r"[\n\t\sA-Za-z]*", "", soup.body.find('span', attrs={'class': 'allowance__left'}).text)
                 )
 
-                if usage > 200:
+                if usage > DATA_LIMIT:
                     usage = usage / 1024
 
                 usage = round(usage, 2)
-                savings = allowance - usage
+                savings = round(allowance - (DATA_LIMIT - usage), 2)
+
+                if savings < 2:
+                    pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/ee_allowance_notif_time.pkl'
+                    with open(pkl_file_path, 'rb') as f:
+                        last_time = load(f)
+
+                    if (datetime.now() - last_time) > 21600:
+                        _send_notification('EE Data Warning', f'Your data savings has dropped below 2GB: {savings}')
+                        with open(pkl_file_path, 'wb') as f:
+                            dump(datetime.now(), f)
+
                 break
             except (AttributeError, ReadTimeout):
                 sleep(0.5)
                 continue
 
         self._state = savings
+
+
+class DataLimitSensor(Entity):
+    def __init__(self):
+        self._state = None
+
+    @property
+    def name(self):
+        return 'Data Limit'
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        return 'GB'
+
+    def update(self):
+        self._state = DATA_LIMIT
