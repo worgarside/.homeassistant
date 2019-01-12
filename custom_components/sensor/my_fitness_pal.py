@@ -11,7 +11,7 @@ REQUIREMENTS = ['myfitnesspal', 'python-dotenv']
 load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
 EMAIL = getenv('EMAIL')
 PASSWORD = getenv('MFP_PASSWORD')
-
+MAX_RETRIES = 5
 
 def log(m='', newline=False):
     now = datetime.now()
@@ -23,6 +23,29 @@ def log(m='', newline=False):
         f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
                 .format(now.year, now.month, now.day, now.hour, now.minute, now.second, m)
                 )
+
+
+def _get_total(food_group):
+    from myfitnesspal import Client
+    from json.decoder import JSONDecodeError
+    from time import sleep
+
+    log('MFP: {}'.format(food_group))
+    now = datetime.now()
+    retry_count = 0
+    while True:
+        try:
+            return Client(EMAIL, PASSWORD) \
+                .get_date(now.year, now.month, now.day) \
+                .totals \
+                .get(food_group, 0)
+        except JSONDecodeError:
+            sleep(2)
+            if retry_count < MAX_RETRIES:
+                retry_count += 1
+                continue
+            else:
+                exit(e)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -48,14 +71,7 @@ class CalorieConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        log('MFP: Calories')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = Client(EMAIL, PASSWORD) \
-            .get_date(now.year, now.month, now.day) \
-            .totals \
-            .get('calories', 0)
+        self._state = _get_total('calories')
 
 
 class CarbohydrateConsumptionSensor(Entity):
@@ -76,14 +92,7 @@ class CarbohydrateConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        log('MFP: Carbohydrates')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = Client(EMAIL, PASSWORD) \
-            .get_date(now.year, now.month, now.day) \
-            .totals \
-            .get('carbohydrates', 0)
+        self._state = _get_total('carbohydrates')
 
 
 class FatConsumptionSensor(Entity):
@@ -104,14 +113,7 @@ class FatConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        log('MFP: Fat')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = Client(EMAIL, PASSWORD) \
-            .get_date(now.year, now.month, now.day) \
-            .totals \
-            .get('fat', 0)
+        self._state = _get_total('fat')
 
 
 class ProteinConsumptionSensor(Entity):
@@ -132,14 +134,7 @@ class ProteinConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=10))
     def update(self):
-        log('MFP: Protein')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = Client(EMAIL, PASSWORD) \
-            .get_date(now.year, now.month, now.day) \
-            .totals \
-            .get('protein', 0)
+        self._state = _get_total('protein')
 
 
 class SodiumConsumptionSensor(Entity):
@@ -160,14 +155,7 @@ class SodiumConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        log('MFP: Sodium')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = round(Client(EMAIL, PASSWORD)
-                            .get_date(now.year, now.month, now.day)
-                            .totals
-                            .get('sodium', 0) / 1000.0, 2)
+        self._state = round(_get_total('sodium') / 1000.0, 2)
 
 
 class SugarConsumptionSensor(Entity):
@@ -188,11 +176,4 @@ class SugarConsumptionSensor(Entity):
 
     @Throttle(timedelta(minutes=30))
     def update(self):
-        log('MFP: Sugar')
-        from myfitnesspal import Client
-        now = datetime.now()
-
-        self._state = Client(EMAIL, PASSWORD) \
-            .get_date(now.year, now.month, now.day) \
-            .totals \
-            .get('sugar', 0)
+        _get_total('sugar')

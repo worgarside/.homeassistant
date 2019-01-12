@@ -64,10 +64,9 @@ def _get_client(credentials_dict):
     retry_count = 0
     while True:
         try:
-            client = build(API_SERVICE_NAME, API_VERSION, credentials=updated_credentials, cache_discovery=False)
-            return client
+            return build(API_SERVICE_NAME, API_VERSION, credentials=updated_credentials, cache_discovery=False)
         except (SSLEOFError, ConnectionResetError, timeout) as e:
-            sleep(2.5)
+            sleep(2)
             if retry_count < MAX_RETRIES:
                 retry_count += 1
                 continue

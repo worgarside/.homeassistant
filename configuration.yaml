@@ -8,6 +8,7 @@ homeassistant:
   customize: !include customize.yaml
   auth_providers:
     - type: legacy_api_password
+    - type: homeassistant
 
 recorder:
   db_url: !secret db_url
