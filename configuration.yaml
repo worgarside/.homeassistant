@@ -67,29 +67,7 @@ map:
 sun:
 
 # Sensors
-sensor:
-  - platform: darksky
-    api_key: !secret darksky_api_key
-    monitored_conditions:
-      - summary
-      - precip_intensity
-      - temperature
-  - platform: ee
-  - platform: google_fit
-  - platform: my_fitness_pal
-  - platform: uptime
-    name: Time Online
-    unit_of_measurement: hours
-  - platform: systemmonitor
-    resources:
-      - type: disk_use_percent
-        arg: /home
-      - type: memory_free
-      - type: network_in
-        arg: eth0
-      - type: network_out
-        arg: eth0
-      - type: processor_use
+sensor: !include sensors.yaml
     
 device_tracker:
   - platform: google_maps
