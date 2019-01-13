@@ -14,7 +14,7 @@ configuration.yaml
 customize.yaml
 groups.yaml
 scripts.yaml
-secrets.yaml
+sensors.yaml
 Pipfile
 Pipfile.lock
 README.md

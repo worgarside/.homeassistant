@@ -23,7 +23,7 @@ REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
 
 def log(m='', newline=False):
     now = datetime.now()
-    with open('/home/pi/Projects/wg-utils/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
+    with open('/home/homeassistant/.homeassistant/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
               'a') as f:
         if newline:
             f.write('\n')

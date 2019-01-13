@@ -11,6 +11,8 @@
 
 - platform: my_fitness_pal
 
+- platform: strava
+
 - platform: uptime
   name: Time Online
   unit_of_measurement: hours
