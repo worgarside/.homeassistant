@@ -191,11 +191,11 @@ class BodyWeightSensor(Entity):
 
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
-        one_hour_ago = (now - 3600) * 1000000000
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
 
         self._state = None
         self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
-        self._dataset = '{}-{}'.format(one_hour_ago, now_nano)
+        self._dataset = '{}-{}'.format(day_start, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
 

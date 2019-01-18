@@ -105,7 +105,7 @@ def get_body_weight():
 
     _client = _get_client(credentials_dict)
     _data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
-    _dataset = '{}-{}'.format(ONE_HOUR_AGO, NOW_NANO)
+    _dataset = '{}-{}'.format(DAY_START, NOW_NANO)
 
     dataset = _get_dataset(_client, _data_source, _dataset)
 
