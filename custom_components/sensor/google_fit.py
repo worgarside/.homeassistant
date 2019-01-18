@@ -142,11 +142,11 @@ class CumulativeStepCountSensor(Entity):
 
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
-        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+        year_start = 1546304400 * 1000000000
 
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._dataset = '{}-{}'.format(day_start, now_nano)
+        self._dataset = '{}-{}'.format(year_start, now_nano)
         with open(CREDENTIALS_FILE, 'r') as f:
             self._credentials = load(f)
         self._client = _get_client(self._credentials)
