@@ -1,9 +1,9 @@
+from json import dump
 from os import getenv
-from requests import post, get
-from dotenv import load_dotenv
 from pprint import pprint
-from json import dump, load
-from datetime import datetime
+
+from dotenv import load_dotenv
+from requests import post
 
 load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
 
@@ -33,17 +33,22 @@ def _get_data(datum, ytd=False):
     from json import load
     from datetime import datetime
     from requests import get
+    from json.decoder import JSONDecodeError
 
     def _get_athlete():
-        return get(f'https://www.strava.com/api/v3/athletes/{STRAVA_USER_ID}/stats',
-                   headers={'Authorization': f'Bearer {access_token}'})
+        return get('https://www.strava.com/api/v3/athletes/{}/stats'.format(STRAVA_USER_ID),
+                   headers={'Authorization': 'Bearer {}'.format(access_token)})
 
-    with open(CLIENT_SECRETS_FILE, 'r') as f:
-        client_secrets = load(f)
-        access_token = client_secrets['access_token']
+    try:
+        with open(CLIENT_SECRETS_FILE, 'r') as f:
+            client_secrets = load(f)
+            access_token = client_secrets['access_token']
 
-    if client_secrets['expires_at'] - 3000 < int(datetime.now().timestamp()):
-        access_token = _refresh_access_token(access_token)
+        if client_secrets['expires_at'] - 3000 < int(datetime.now().timestamp()):
+            access_token = _refresh_access_token(access_token)
+    except (JSONDecodeError, KeyError) as e:
+        access_token = 'abcdefghijklmnopqrstuvwxyz'
+        _refresh_access_token(access_token)
 
     athlete = _get_athlete()
 
