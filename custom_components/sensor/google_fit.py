@@ -23,8 +23,8 @@ REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
 
 def log(m='', newline=False):
     now = datetime.now()
-    with open('/home/homeassistant/.homeassistant/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
-              'a') as f:
+    with open('/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'
+                      .format(now.year, now.month, now.day), 'a') as f:
         if newline:
             f.write('\n')
         f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
@@ -121,10 +121,7 @@ class DailyStepCountSensor(Entity):
     def unit_of_measurement(self):
         return 'Steps'
 
-    @Throttle(timedelta(minutes=5))
     def update(self):
-        log('Google Fit: Daily Step Count')
-
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -134,6 +131,7 @@ class DailyStepCountSensor(Entity):
                 step_count += point['value'][0]['intVal']
 
         self._state = step_count
+        log('Google Fit: Daily Step Count - {}'.format(self._state))
 
 
 class CumulativeStepCountSensor(Entity):
@@ -163,9 +161,7 @@ class CumulativeStepCountSensor(Entity):
     def unit_of_measurement(self):
         return 'Steps'
 
-    @Throttle(timedelta(minutes=5))
     def update(self):
-        log('Google Fit: Cumulative Step Count')
         from pickle import load, dump
 
         pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
@@ -183,6 +179,7 @@ class CumulativeStepCountSensor(Entity):
             dump([cum_step_count, recent_cum_start_time], f)
 
         self._state = cum_step_count
+        log('Google Fit: Cumulative Step Count - {}'.format(self._state))
 
 
 class BodyWeightSensor(Entity):
@@ -213,13 +210,12 @@ class BodyWeightSensor(Entity):
     def unit_of_measurement(self):
         return MASS_KILOGRAMS
 
-    @Throttle(timedelta(minutes=5))
     def update(self):
-        log('Google Fit: Body Weight')
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         if len(dataset['point']) == 1:
             self._state = dataset['point'][0]['value'][0]['fpVal']
+            log('Google Fit: Body Weight - {}'.format(self._state))
         elif len(dataset['point']) > 1:
             max_time = 0
             weight = 0
@@ -227,7 +223,9 @@ class BodyWeightSensor(Entity):
                 if float(point['endTimeNanos']) > max_time:
                     max_time = float(point['endTimeNanos'])
                     weight = point['value'][0]['fpVal']
+
             self._state = round(weight, 2) if not weight == 0 else None
+            log('Google Fit: Body Weight - {}'.format(self._state))
 
 
 class CalorieExpenditureSensor(Entity):
@@ -258,10 +256,7 @@ class CalorieExpenditureSensor(Entity):
     def unit_of_measurement(self):
         return 'kcal'
 
-    @Throttle(timedelta(minutes=5))
     def update(self):
-        log('Google Fit: Calories Expended')
-
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -271,3 +266,4 @@ class CalorieExpenditureSensor(Entity):
                 cal_count += point['value'][0]['fpVal']
 
         self._state = int(cal_count)
+        log('Google Fit: Calories Expended - {}'.format(self._state))
