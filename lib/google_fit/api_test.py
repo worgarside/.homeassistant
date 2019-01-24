@@ -118,7 +118,7 @@ def get_body_weight():
             if float(point['endTimeNanos']) > max_time:
                 max_time = float(point['endTimeNanos'])
                 weight = point['value'][0]['fpVal']
-        _state = weight if not weight == 0 else _state
+        _state = round(weight, 2) if not weight == 0 else _state
 
     return _state
 
@@ -141,36 +141,7 @@ def get_calories_expended():
     return int(cal_count)
 
 
-def get_speed():
-    with open(CREDENTIALS_FILE, 'r') as f:
-        credentials_dict = load(f)
-
-    _client = _get_client(credentials_dict)
-    _data_source = 'derived:com.google.speed:com.google.android.gms:merge_speed'
-    _dataset = '{}-{}'.format(TWO_MINS_AGO, NOW_NANO)
-
-    dataset = _get_dataset(_client, _data_source, _dataset)
-
-    if len(dataset['point']) == 1 and int(dataset['point'][0]['startTimeNanos']) > DAY_START:
-        _state = dataset['point'][0]['value'][0]['fpVal']
-    elif len(dataset['point']) > 1:
-        max_time = 0
-        speed = 0
-        for point in dataset['point']:
-            if int(point['startTimeNanos']) > DAY_START:
-                if float(point['endTimeNanos']) > max_time:
-                    max_time = float(point['endTimeNanos'])
-                    speed = point['value'][0]['fpVal']
-
-        _state = int(speed)
-    else:
-        _state = 0
-
-    return _state
-
-
 if __name__ == '__main__':
     print(f'Steps: {get_daily_step_count()}')
     print(f'Weight: {get_body_weight()}')
     print(f'Calories Expended: {get_calories_expended()}')
-    print(f'Speed: {get_speed()}')

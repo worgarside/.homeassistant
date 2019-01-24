@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from time import mktime
 
+from homeassistant.const import MASS_KILOGRAMS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-from homeassistant.const import MASS_KILOGRAMS
 
 CLIENT_SECRETS_FILE = '/home/homeassistant/.homeassistant/secret_files/google_client_secrets.json'
 CREDENTIALS_FILE = '/home/homeassistant/.homeassistant/secret_files/google_credentials.json'
@@ -36,13 +36,16 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([DailyStepCountSensor(), CumulativeStepCountSensor(), BodyWeightSensor(), CalorieExpenditureSensor()])
 
 
-def _get_client(credentials_dict):
-    from json import dump
+def _get_client():
+    from json import load, dump
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from time import sleep
     from ssl import SSLEOFError
     from socket import timeout
+
+    with open(CREDENTIALS_FILE, 'r') as f:
+        credentials_dict = load(f)
 
     updated_credentials = Credentials(
         credentials_dict['token'],
@@ -96,7 +99,6 @@ def _get_dataset(client, data_source, dataset):
 
 class DailyStepCountSensor(Entity):
     def __init__(self):
-        from json import load
 
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
@@ -105,9 +107,7 @@ class DailyStepCountSensor(Entity):
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
         self._dataset = '{}-{}'.format(day_start, now_nano)
-        with open(CREDENTIALS_FILE, 'r') as f:
-            self._credentials = load(f)
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
 
     @property
     def name(self):
@@ -121,8 +121,9 @@ class DailyStepCountSensor(Entity):
     def unit_of_measurement(self):
         return 'Steps'
 
+    @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -137,7 +138,6 @@ class DailyStepCountSensor(Entity):
 
 class CumulativeStepCountSensor(Entity):
     def __init__(self):
-        from json import load
 
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
@@ -146,9 +146,8 @@ class CumulativeStepCountSensor(Entity):
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
         self._dataset = '{}-{}'.format(year_start, now_nano)
-        with open(CREDENTIALS_FILE, 'r') as f:
-            self._credentials = load(f)
-        self._client = _get_client(self._credentials)
+
+        self._client = _get_client()
 
     @property
     def name(self):
@@ -162,10 +161,11 @@ class CumulativeStepCountSensor(Entity):
     def unit_of_measurement(self):
         return 'Steps'
 
+    @Throttle(timedelta(minutes=15))
     def update(self):
         from pickle import load, dump
 
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
         pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -186,8 +186,6 @@ class CumulativeStepCountSensor(Entity):
 
 class BodyWeightSensor(Entity):
     def __init__(self):
-        from json import load
-
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
@@ -195,10 +193,7 @@ class BodyWeightSensor(Entity):
         self._state = None
         self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
         self._dataset = '{}-{}'.format(day_start, now_nano)
-        with open(CREDENTIALS_FILE, 'r') as f:
-            self._credentials = load(f)
-
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
 
     @property
     def name(self):
@@ -212,12 +207,13 @@ class BodyWeightSensor(Entity):
     def unit_of_measurement(self):
         return MASS_KILOGRAMS
 
+    @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         if len(dataset['point']) == 1:
-            self._state = dataset['point'][0]['value'][0]['fpVal']
+            self._state = round(dataset['point'][0]['value'][0]['fpVal'], 2)
             log('Google Fit: Body Weight - {}'.format(self._state))
         elif len(dataset['point']) > 1:
             max_time = 0
@@ -233,8 +229,6 @@ class BodyWeightSensor(Entity):
 
 class CalorieExpenditureSensor(Entity):
     def __init__(self):
-        from json import load
-
         now = int(datetime.now().timestamp())
         now_nano = now * 1000000000
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
@@ -242,10 +236,7 @@ class CalorieExpenditureSensor(Entity):
         self._state = None
         self._data_source = 'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended'
         self._dataset = '{}-{}'.format(day_start, now_nano)
-        with open(CREDENTIALS_FILE, 'r') as f:
-            self._credentials = load(f)
-
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
 
     @property
     def name(self):
@@ -259,8 +250,9 @@ class CalorieExpenditureSensor(Entity):
     def unit_of_measurement(self):
         return 'kcal'
 
+    @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client(self._credentials)
+        self._client = _get_client()
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
