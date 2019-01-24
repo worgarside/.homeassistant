@@ -169,7 +169,7 @@ class DataSavingsSensor(Entity):
         return 'GB'
 
     def update(self):
-        from requests import get, ReadTimeout, post
+        from requests import get, ReadTimeout
         from bs4 import BeautifulSoup
         from datetime import datetime
         from math import ceil

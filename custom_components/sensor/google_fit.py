@@ -122,6 +122,7 @@ class DailyStepCountSensor(Entity):
         return 'Steps'
 
     def update(self):
+        self._client = _get_client(self._credentials)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -164,6 +165,7 @@ class CumulativeStepCountSensor(Entity):
     def update(self):
         from pickle import load, dump
 
+        self._client = _get_client(self._credentials)
         pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
@@ -211,6 +213,7 @@ class BodyWeightSensor(Entity):
         return MASS_KILOGRAMS
 
     def update(self):
+        self._client = _get_client(self._credentials)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         if len(dataset['point']) == 1:
@@ -257,6 +260,7 @@ class CalorieExpenditureSensor(Entity):
         return 'kcal'
 
     def update(self):
+        self._client = _get_client(self._credentials)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
