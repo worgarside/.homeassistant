@@ -26,6 +26,8 @@ recorder:
       - zone.home
       - group.all_devices
       - updater.updater
+      - switch.deluge_switch
+      - sensor.deluge_status
 
 # Show links to resources in log and frontend
 # introduction:
