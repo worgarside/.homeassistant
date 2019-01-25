@@ -17,6 +17,7 @@ recorder:
     entities:
       - persistent_notification.config_entry_discovery
       - persistent_notification.httplogin
+      - persistent_notification.http_login
       - persistent_notification.homeassistantcheck_config
       - device_tracker.google_maps_113979464641038639988
       - light.group_for_wakeup
@@ -24,6 +25,7 @@ recorder:
       - light.study_hue_color_lamp
       - zone.home
       - group.all_devices
+      - updater.updater
 
 # Show links to resources in log and frontend
 # introduction:
@@ -69,7 +71,10 @@ sun:
 
 # Sensors
 sensor: !include sensors.yaml
-    
+
+switch: !include switches.yaml
+
+
 device_tracker:
   - platform: google_maps
     username: !secret dev_email
