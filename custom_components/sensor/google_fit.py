@@ -22,13 +22,14 @@ REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
 
 
 def log(m='', newline=False):
-    now = datetime.now()
-    with open('/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'
-                      .format(now.year, now.month, now.day), 'a') as f:
+    n = datetime.now()
+    with open(
+            '/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(n.year, n.month, n.day),
+            'a') as f:
         if newline:
             f.write('\n')
         f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
-                .format(now.year, now.month, now.day, now.hour, now.minute, now.second, m)
+                .format(n.year, n.month, n.day, n.hour, n.minute, n.second, m)
                 )
 
 
@@ -77,16 +78,21 @@ def _get_client():
                 exit(e)
 
 
-def _get_dataset(client, data_source, dataset):
+def _get_dataset(client, data_source,
+                 dataset_start=int(mktime(datetime.today().date().timetuple()) * 1000000000),  # Start of today
+                 dataset_end=int(datetime.now().timestamp()) * 1000000000  # now
+                 ):
     from ssl import SSLEOFError
     from time import sleep
     from socket import timeout
+
+    dataset_range = '{}-{}'.format(dataset_start, dataset_end)
 
     retry_count = 0
     while True:
         try:
             dataset = client.users().dataSources().datasets(). \
-                get(userId=USER_ID, dataSourceId=data_source, datasetId=dataset).execute()
+                get(userId=USER_ID, dataSourceId=data_source, datasetId=dataset_range).execute()
             return dataset
         except (SSLEOFError, ConnectionResetError, timeout) as e:
             sleep(1)
@@ -100,7 +106,6 @@ def _get_dataset(client, data_source, dataset):
 class DailyStepCountSensor(Entity):
     def __init__(self):
         self._state = None
-        self._dataset = None
         self._client = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
 
@@ -119,12 +124,8 @@ class DailyStepCountSensor(Entity):
     @Throttle(timedelta(minutes=15))
     def update(self):
         self._client = _get_client()
-
-        now = int(datetime.now().timestamp()) * 1000000000
+        dataset = _get_dataset(self._client, self._data_source)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-        self._dataset = '{}-{}'.format(day_start, now)
-        dataset = _get_dataset(self._client, self._data_source, self._dataset)
-
         step_count = 0
         for point in dataset['point']:
             if int(point['startTimeNanos']) > day_start:
@@ -158,10 +159,8 @@ class CumulativeStepCountSensor(Entity):
         from pickle import load, dump
 
         self._client = _get_client()
-
         year_start = 1546304400 * 1000000000
-        now = int(datetime.now().timestamp()) * 1000000000
-        dataset = _get_dataset(self._client, self._data_source, '{}-{}'.format(year_start, now))
+        dataset = _get_dataset(self._client, self._data_source, dataset_start=year_start)
 
         with open(self._pkl_file_path, 'rb') as f:
             cum_step_count, recent_cum_start_time = load(f)
@@ -200,9 +199,7 @@ class BodyWeightSensor(Entity):
     def update(self):
         self._client = _get_client()
 
-        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-        now = int(datetime.now().timestamp()) * 1000000000
-        dataset = _get_dataset(self._client, self._data_source,'{}-{}'.format(day_start, now))
+        dataset = _get_dataset(self._client, self._data_source)
 
         if len(dataset['point']) == 1:
             self._state = round(dataset['point'][0]['value'][0]['fpVal'], 2)
@@ -241,10 +238,8 @@ class CalorieExpenditureSensor(Entity):
     def update(self):
         self._client = _get_client()
 
+        dataset = _get_dataset(self._client, self._data_source)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-        now = int(datetime.now().timestamp()) * 1000000000
-        dataset = _get_dataset(self._client, self._data_source, '{}-{}'.format(day_start, now))
-
         cal_count = 0
         for point in dataset['point']:
             if int(point['startTimeNanos']) > day_start:
