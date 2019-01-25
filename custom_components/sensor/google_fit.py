@@ -19,12 +19,13 @@ SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read',
 MAX_RETRIES = 5
 
 REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
+LOG_DIRECTORY = '/home/homeassistant/.homeassistant/logs'
 
 
-def log(m='', newline=False):
+def log(m='', log_dir=LOG_DIRECTORY, file_prefix='hass_activity', newline=False):
     n = datetime.now()
     with open(
-            '/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(n.year, n.month, n.day),
+            '{}/{}_{}-{:02d}-{:02d}.log'.format(log_dir, file_prefix, n.year, n.month, n.day),
             'a') as f:
         if newline:
             f.write('\n')
@@ -78,15 +79,18 @@ def _get_client():
                 exit(e)
 
 
-def _get_dataset(client, data_source,
+def _get_dataset(data_source,
                  dataset_start=int(mktime(datetime.today().date().timetuple()) * 1000000000),  # Start of today
-                 dataset_end=int(datetime.now().timestamp()) * 1000000000  # now
+                 dataset_end=None  # now
                  ):
     from ssl import SSLEOFError
     from time import sleep
     from socket import timeout
 
+    dataset_end = int(datetime.now().timestamp()) * 1000000000 if not dataset_end else dataset_end
+
     dataset_range = '{}-{}'.format(dataset_start, dataset_end)
+    client = _get_client()
 
     retry_count = 0
     while True:
@@ -106,7 +110,6 @@ def _get_dataset(client, data_source,
 class DailyStepCountSensor(Entity):
     def __init__(self):
         self._state = None
-        self._client = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
 
     @property
@@ -123,8 +126,7 @@ class DailyStepCountSensor(Entity):
 
     @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client()
-        dataset = _get_dataset(self._client, self._data_source)
+        dataset = _get_dataset(self._data_source)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         step_count = 0
         for point in dataset['point']:
@@ -137,7 +139,6 @@ class DailyStepCountSensor(Entity):
 
 class CumulativeStepCountSensor(Entity):
     def __init__(self):
-        self._client = None
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
         self._pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
@@ -158,9 +159,8 @@ class CumulativeStepCountSensor(Entity):
     def update(self):
         from pickle import load, dump
 
-        self._client = _get_client()
         year_start = 1546304400 * 1000000000
-        dataset = _get_dataset(self._client, self._data_source, dataset_start=year_start)
+        dataset = _get_dataset(self._data_source, dataset_start=year_start)
 
         with open(self._pkl_file_path, 'rb') as f:
             cum_step_count, recent_cum_start_time = load(f)
@@ -179,7 +179,6 @@ class CumulativeStepCountSensor(Entity):
 
 class BodyWeightSensor(Entity):
     def __init__(self):
-        self._client = None
         self._state = None
         self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
 
@@ -197,9 +196,7 @@ class BodyWeightSensor(Entity):
 
     @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client()
-
-        dataset = _get_dataset(self._client, self._data_source)
+        dataset = _get_dataset(self._data_source)
 
         if len(dataset['point']) == 1:
             self._state = round(dataset['point'][0]['value'][0]['fpVal'], 2)
@@ -218,7 +215,6 @@ class BodyWeightSensor(Entity):
 
 class CalorieExpenditureSensor(Entity):
     def __init__(self):
-        self._client = None
         self._state = None
         self._data_source = 'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended'
 
@@ -236,9 +232,7 @@ class CalorieExpenditureSensor(Entity):
 
     @Throttle(timedelta(minutes=15))
     def update(self):
-        self._client = _get_client()
-
-        dataset = _get_dataset(self._client, self._data_source)
+        dataset = _get_dataset(self._data_source)
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
         cal_count = 0
         for point in dataset['point']:
