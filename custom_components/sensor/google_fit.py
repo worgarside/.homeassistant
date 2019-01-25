@@ -99,15 +99,10 @@ def _get_dataset(client, data_source, dataset):
 
 class DailyStepCountSensor(Entity):
     def __init__(self):
-
-        now = int(datetime.now().timestamp())
-        now_nano = now * 1000000000
-        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-
         self._state = None
+        self._dataset = None
+        self._client = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._dataset = '{}-{}'.format(day_start, now_nano)
-        self._client = _get_client()
 
     @property
     def name(self):
@@ -124,7 +119,10 @@ class DailyStepCountSensor(Entity):
     @Throttle(timedelta(minutes=15))
     def update(self):
         self._client = _get_client()
+
+        now = int(datetime.now().timestamp()) * 1000000000
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+        self._dataset = '{}-{}'.format(day_start, now)
         dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
         step_count = 0
@@ -138,16 +136,10 @@ class DailyStepCountSensor(Entity):
 
 class CumulativeStepCountSensor(Entity):
     def __init__(self):
-
-        now = int(datetime.now().timestamp())
-        now_nano = now * 1000000000
-        year_start = 1546304400 * 1000000000
-
+        self._client = None
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._dataset = '{}-{}'.format(year_start, now_nano)
-
-        self._client = _get_client()
+        self._pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
 
     @property
     def name(self):
@@ -166,10 +158,12 @@ class CumulativeStepCountSensor(Entity):
         from pickle import load, dump
 
         self._client = _get_client()
-        pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/cum_step_count.pkl'
-        dataset = _get_dataset(self._client, self._data_source, self._dataset)
 
-        with open(pkl_file_path, 'rb') as f:
+        year_start = 1546304400 * 1000000000
+        now = int(datetime.now().timestamp()) * 1000000000
+        dataset = _get_dataset(self._client, self._data_source, '{}-{}'.format(year_start, now))
+
+        with open(self._pkl_file_path, 'rb') as f:
             cum_step_count, recent_cum_start_time = load(f)
 
         for point in dataset['point']:
@@ -177,7 +171,7 @@ class CumulativeStepCountSensor(Entity):
                 cum_step_count += point['value'][0]['intVal']
                 recent_cum_start_time = int(point['startTimeNanos'])
 
-        with open(pkl_file_path, 'wb') as f:
+        with open(self._pkl_file_path, 'wb') as f:
             dump([cum_step_count, recent_cum_start_time], f)
 
         self._state = cum_step_count
@@ -186,14 +180,9 @@ class CumulativeStepCountSensor(Entity):
 
 class BodyWeightSensor(Entity):
     def __init__(self):
-        now = int(datetime.now().timestamp())
-        now_nano = now * 1000000000
-        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-
+        self._client = None
         self._state = None
         self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
-        self._dataset = '{}-{}'.format(day_start, now_nano)
-        self._client = _get_client()
 
     @property
     def name(self):
@@ -210,7 +199,10 @@ class BodyWeightSensor(Entity):
     @Throttle(timedelta(minutes=15))
     def update(self):
         self._client = _get_client()
-        dataset = _get_dataset(self._client, self._data_source, self._dataset)
+
+        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
+        now = int(datetime.now().timestamp()) * 1000000000
+        dataset = _get_dataset(self._client, self._data_source,'{}-{}'.format(day_start, now))
 
         if len(dataset['point']) == 1:
             self._state = round(dataset['point'][0]['value'][0]['fpVal'], 2)
@@ -229,14 +221,9 @@ class BodyWeightSensor(Entity):
 
 class CalorieExpenditureSensor(Entity):
     def __init__(self):
-        now = int(datetime.now().timestamp())
-        now_nano = now * 1000000000
-        day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-
+        self._client = None
         self._state = None
         self._data_source = 'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended'
-        self._dataset = '{}-{}'.format(day_start, now_nano)
-        self._client = _get_client()
 
     @property
     def name(self):
@@ -253,8 +240,10 @@ class CalorieExpenditureSensor(Entity):
     @Throttle(timedelta(minutes=15))
     def update(self):
         self._client = _get_client()
+
         day_start = int(mktime(datetime.today().date().timetuple()) * 1000000000)
-        dataset = _get_dataset(self._client, self._data_source, self._dataset)
+        now = int(datetime.now().timestamp()) * 1000000000
+        dataset = _get_dataset(self._client, self._data_source, '{}-{}'.format(day_start, now))
 
         cal_count = 0
         for point in dataset['point']:
