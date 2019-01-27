@@ -79,14 +79,13 @@ def _get_client():
                 exit(e)
 
 
-def _get_dataset(data_source,
-                 dataset_start=int(mktime(datetime.today().date().timetuple()) * 1000000000),  # Start of today
-                 dataset_end=None  # now
-                 ):
+def _get_dataset(data_source, dataset_start=None, dataset_end=None):
     from ssl import SSLEOFError
     from time import sleep
     from socket import timeout
 
+    dataset_start = int(
+        mktime(datetime.today().date().timetuple()) * 1000000000) if not dataset_start else dataset_start
     dataset_end = int(datetime.now().timestamp()) * 1000000000 if not dataset_end else dataset_end
 
     dataset_range = '{}-{}'.format(dataset_start, dataset_end)
