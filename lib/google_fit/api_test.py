@@ -22,12 +22,15 @@ ONE_HOUR_AGO = (NOW - 3600) * 1000000000
 TWO_MINS_AGO = (NOW - 120) * 1000000000
 
 
-def _get_client(credentials_dict):
+def _get_client():
     from json import dump
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from time import sleep
     from ssl import SSLEOFError
+
+    with open(CREDENTIALS_FILE, 'r') as f:
+        credentials_dict = load(f)
 
     updated_credentials = Credentials(
         credentials_dict['token'],
@@ -60,9 +63,11 @@ def _get_client(credentials_dict):
                 raise SSLEOFError(e)
 
 
-def _get_dataset(client, data_source, dataset):
+def _get_dataset(data_source, dataset):
     from ssl import SSLEOFError
     from time import sleep
+
+    client = _get_client()
 
     retry_count = 0
     while True:
@@ -79,15 +84,28 @@ def _get_dataset(client, data_source, dataset):
                 raise SSLEOFError(e)
 
 
-def get_daily_step_count():
-    with open(CREDENTIALS_FILE, 'r') as f:
-        credentials_dict = load(f)
+def _get_available_datasets(client):
+    from ssl import SSLEOFError
+    from time import sleep
 
-    _client = _get_client(credentials_dict)
+    retry_count = 0
+    while True:
+        try:
+            return client.users().dataSources().list(userId=USER_ID).execute()
+        except SSLEOFError as e:
+            sleep(2.5)
+            if retry_count < MAX_RETRIES:
+                retry_count += 1
+                continue
+            else:
+                raise SSLEOFError(e)
+
+
+def get_daily_step_count():
     _data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
     _dataset = '{}-{}'.format(DAY_START, NOW_NANO)
 
-    dataset = _get_dataset(_client, _data_source, _dataset)
+    dataset = _get_dataset(_data_source, _dataset)
 
     step_count = 0
     for point in dataset['point']:
@@ -100,21 +118,21 @@ def get_daily_step_count():
 def get_body_weight():
     _state = None
 
-    with open(CREDENTIALS_FILE, 'r') as f:
-        credentials_dict = load(f)
-
-    _client = _get_client(credentials_dict)
-    _data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
+    _google_fit_data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
+    _myfitnesspal_data_source = 'raw:com.google.weight:com.myfitnesspal.android:'
     _dataset = '{}-{}'.format(DAY_START, NOW_NANO)
 
-    dataset = _get_dataset(_client, _data_source, _dataset)
+    google_fit_dataset = _get_dataset(_google_fit_data_source, _dataset)
+    myfitnesspal_dataset = _get_dataset(_myfitnesspal_data_source, _dataset)
 
-    if len(dataset['point']) == 1:
-        _state = dataset['point'][0]['value'][0]['fpVal']
-    elif len(dataset['point']) > 1:
+    combined_datapoints = google_fit_dataset['point'] + myfitnesspal_dataset['point']
+
+    if len(combined_datapoints) == 1:
+        _state = combined_datapoints[0]['value'][0]['fpVal']
+    elif len(combined_datapoints) > 1:
         max_time = 0
         weight = 0
-        for point in dataset['point']:
+        for point in combined_datapoints:
             if float(point['endTimeNanos']) > max_time:
                 max_time = float(point['endTimeNanos'])
                 weight = point['value'][0]['fpVal']
@@ -124,14 +142,10 @@ def get_body_weight():
 
 
 def get_calories_expended():
-    with open(CREDENTIALS_FILE, 'r') as f:
-        credentials_dict = load(f)
-
-    _client = _get_client(credentials_dict)
     _data_source = 'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended'
     _dataset = '{}-{}'.format(DAY_START, NOW_NANO)
 
-    dataset = _get_dataset(_client, _data_source, _dataset)
+    dataset = _get_dataset(_data_source, _dataset)
 
     cal_count = 0
     for point in dataset['point']:
