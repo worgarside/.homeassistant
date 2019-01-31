@@ -202,7 +202,7 @@ class BodyWeightSensor(Entity):
         combined_datapoints = google_fit_dataset['point'] + myfitnesspal_dataset['point']
 
         if len(combined_datapoints) == 1:
-            self._state = combined_datapoints[0]['value'][0]['fpVal']
+            self._state = round(combined_datapoints[0]['value'][0]['fpVal'], 2)
             log('Google Fit: Body Weight - {}'.format(self._state))
         elif len(combined_datapoints) > 1:
             max_time = 0
