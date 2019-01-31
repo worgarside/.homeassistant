@@ -179,7 +179,8 @@ class CumulativeStepCountSensor(Entity):
 class BodyWeightSensor(Entity):
     def __init__(self):
         self._state = None
-        self._data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
+        self._google_fit_data_source = 'raw:com.google.weight:com.google.android.apps.fitness:user_input'
+        self._myfitnesspal_data_source = 'raw:com.google.weight:com.myfitnesspal.android:'
 
     @property
     def name(self):
@@ -195,20 +196,22 @@ class BodyWeightSensor(Entity):
 
     @Throttle(timedelta(minutes=15))
     def update(self):
-        dataset = _get_dataset(self._data_source)
+        google_fit_dataset = _get_dataset(self._google_fit_data_source)
+        myfitnesspal_dataset = _get_dataset(self._myfitnesspal_data_source)
 
-        if len(dataset['point']) == 1:
-            self._state = round(dataset['point'][0]['value'][0]['fpVal'], 2)
+        combined_datapoints = google_fit_dataset['point'] + myfitnesspal_dataset['point']
+
+        if len(combined_datapoints) == 1:
+            self._state = combined_datapoints[0]['value'][0]['fpVal']
             log('Google Fit: Body Weight - {}'.format(self._state))
-        elif len(dataset['point']) > 1:
+        elif len(combined_datapoints) > 1:
             max_time = 0
             weight = 0
-            for point in dataset['point']:
+            for point in combined_datapoints:
                 if float(point['endTimeNanos']) > max_time:
                     max_time = float(point['endTimeNanos'])
                     weight = point['value'][0]['fpVal']
-
-            self._state = round(weight, 2) if not weight == 0 else None
+            self._state = round(weight, 2) if not weight == 0 else self._state
             log('Google Fit: Body Weight - {}'.format(self._state))
 
 
