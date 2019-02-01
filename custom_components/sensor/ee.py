@@ -36,7 +36,7 @@ def _get_allowance():
         days_remaining = 0
         hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
     else:
-        raise ValueError(f'Unknown allowance__timespan element: {allowance__timespan}')
+        raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan))
 
     hours_remaining += mins_remaining / 60
 
