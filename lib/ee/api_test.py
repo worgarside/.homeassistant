@@ -21,12 +21,16 @@ def get_remaining_data():
             soup = BeautifulSoup(res.content, 'html.parser')
             for small in soup('small'):
                 small.decompose()
+
+            allowance__left = soup.body.find('span', attrs={'class': 'allowance__left'}).text
             usage = float(
-                sub(r"[\n\t\sA-Za-z]*", "", soup.body.find('span', attrs={'class': 'allowance__left'}).text)
+                sub(r"[\n\t\sA-Za-z]*", "", allowance__left)
             )
 
-            if usage > DATA_LIMIT:
+            if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
                 usage = usage / 1024
+            else:
+                raise ValueError(f'Unknown allowance__left element: {allowance__left}')
 
             return round(usage, 2)
         except AttributeError:
@@ -68,8 +72,21 @@ def get_savings():
         try:
             res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
             soup = BeautifulSoup(res.content, 'html.parser')
-            days_remaining, hours_remaining = [int(b.text) for b in
-                                               soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+
+            allowance__timespan = soup.body.find('p', attrs={'class': 'allowance__timespan'}).text.strip().lower()
+
+            if 'days' in allowance__timespan:
+                days_remaining, hours_remaining = [int(b.text) for b in
+                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+                mins_remaining = 0
+            elif 'mins' in allowance__timespan:
+                days_remaining = 0
+                hours_remaining, mins_remaining = [int(b.text) for b in
+                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+            else:
+                raise ValueError(f'Unknown allowance__timespan element: {allowance__timespan}')
+
+            hours_remaining += mins_remaining / 60
 
             now = datetime.now()
             day = now.day
@@ -104,6 +121,8 @@ def get_savings():
         except (AttributeError, ReadTimeout):
             sleep(0.5)
             continue
+        except ValueError as e:
+            exit(e)
 
     return savings
 
