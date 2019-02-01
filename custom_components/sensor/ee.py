@@ -24,17 +24,24 @@ def _get_remaining_data():
             soup = BeautifulSoup(res.content, 'html.parser')
             for small in soup('small'):
                 small.decompose()
+
+            allowance__left = soup.body.find('span', attrs={'class': 'allowance__left'}).text
             usage = float(
-                sub(r"[\n\t\sA-Za-z]*", "", soup.body.find('span', attrs={'class': 'allowance__left'}).text)
+                sub(r"[\n\t\sA-Za-z]*", "", allowance__left)
             )
 
-            if usage > DATA_LIMIT:
+            if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
                 usage = usage / 1024
+            else:
+                raise ValueError(f'Unknown allowance__left element: {allowance__left}')
 
             return round(usage, 2)
         except (AttributeError, ReadTimeout):
             sleep(1)
             continue
+        except ValueError as e:
+            _send_notification('EE Data Savings Sensor Error', e)
+            exit(1)
 
 
 def _send_notification(t, m):
@@ -125,8 +132,20 @@ class DataAllowanceSensor(Entity):
             try:
                 res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
                 soup = BeautifulSoup(res.content, 'html.parser')
-                days_remaining, hours_remaining = [int(b.text) for b in
-                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+                allowance_left = soup.body.find('p', attrs={'class': 'allowance__timespan'}).text.strip().lower()
+
+                if 'days' in allowance_left:
+                    days_remaining, hours_remaining = [int(b.text) for b in
+                                                       soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+                    mins_remaining = 0
+                elif 'mins' in allowance_left:
+                    days_remaining = 0
+                    hours_remaining, mins_remaining = [int(b.text) for b in
+                                                       soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+                else:
+                    raise ValueError(f'Unknown allowance_left element: {allowance_left}')
+
+                hours_remaining += mins_remaining / 60
 
                 now = datetime.now()
                 day = now.day
@@ -148,6 +167,10 @@ class DataAllowanceSensor(Entity):
             except (AttributeError, ReadTimeout):
                 sleep(0.5)
                 continue
+            except ValueError as e:
+                _send_notification('EE Data Savings Sensor Error', e)
+                allowance = None
+                break
 
         self._state = allowance
 
