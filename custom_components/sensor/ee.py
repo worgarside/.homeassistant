@@ -28,13 +28,13 @@ def _get_allowance():
         days_remaining, hours_remaining = [int(b.text) for b in refined_soup('b')]
         mins_remaining = 0
     elif 'mins' in allowance__timespan \
-            or 'min' in allowance__timespan \
-            or (
-            len(refined_soup('b')) == 1
-            and ('days' not in allowance__timespan or 'day' not in allowance__timespan)
-    ):
+            or 'min' in allowance__timespan:
         days_remaining = 0
         hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
+    elif len(refined_soup('b')) == 1 and ('days' not in allowance__timespan or 'day' not in allowance__timespan):
+        days_remaining = 0
+        hours_remaining = [int(b.text) for b in refined_soup('b')]
+        mins_remaining = 0
     else:
         raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan.strip()))
 
