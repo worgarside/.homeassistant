@@ -29,8 +29,8 @@ def get_remaining_data():
 
             if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
                 usage = usage / 1024
-            else:
-                raise ValueError(f'Unknown allowance__left element: {allowance__left}')
+            elif 'gb' not in allowance__left.lower() and 'mb' not in allowance__left.lower():
+                raise ValueError(f'Unknown allowance__left element: {allowance__left.strip()}')
 
             return round(usage, 2)
         except AttributeError:
@@ -43,46 +43,22 @@ def get_allowance():
         try:
             res = get('http://add-on.ee.co.uk/mbbstatus')
             soup = BeautifulSoup(res.content, 'html.parser')
-            days_remaining, hours_remaining = [int(b.text) for b in
-                                               soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
 
-            now = datetime.now()
-            day = now.day
-            month = now.month
-            year = now.year
-            if day < 2:
-                month = now.month - 1
-                if month < 1:
-                    month += 12
-                    year = now.year - 1
+            refined_soup = soup.body.find('p', attrs={'class': 'allowance__timespan'})
 
-            start = datetime(year=year, month=month, day=2)
-            total_hours_since_start = ceil((int(now.timestamp()) - int(start.timestamp())) / 3600)
-            total_hours_remaining = (days_remaining * 24) + hours_remaining
-            hours_in_month = total_hours_since_start + total_hours_remaining
-            hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-            return hour_percentage_passed * DATA_LIMIT
-        except AttributeError:
-            sleep(0.5)
-            continue
+            allowance__timespan = refined_soup.text.strip().lower()
 
-
-def get_savings():
-    while True:
-        try:
-            res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
-            soup = BeautifulSoup(res.content, 'html.parser')
-
-            allowance__timespan = soup.body.find('p', attrs={'class': 'allowance__timespan'}).text.strip().lower()
-
-            if 'days' in allowance__timespan:
-                days_remaining, hours_remaining = [int(b.text) for b in
-                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+            if 'days' in allowance__timespan or 'day' in allowance__timespan:
+                days_remaining, hours_remaining = [int(b.text) for b in refined_soup('b')]
                 mins_remaining = 0
-            elif 'mins' in allowance__timespan:
+            elif 'mins' in allowance__timespan \
+                    or 'min' in allowance__timespan \
+                    or (
+                    len(refined_soup('b')) == 1
+                    and ('days' not in allowance__timespan or 'day' not in allowance__timespan)
+            ):
                 days_remaining = 0
-                hours_remaining, mins_remaining = [int(b.text) for b in
-                                                   soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
+                hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
             else:
                 raise ValueError(f'Unknown allowance__timespan element: {allowance__timespan}')
 
@@ -103,7 +79,16 @@ def get_savings():
             total_hours_remaining = (days_remaining * 24) + hours_remaining
             hours_in_month = total_hours_since_start + total_hours_remaining
             hour_percentage_passed = round(total_hours_since_start / hours_in_month, 3)
-            allowance = round(hour_percentage_passed * DATA_LIMIT, 1)
+            return hour_percentage_passed * DATA_LIMIT, soup
+        except AttributeError:
+            sleep(0.5)
+            continue
+
+
+def get_savings():
+    while True:
+        try:
+            allowance, soup = get_allowance()
 
             for small in soup('small'):
                 small.decompose()
@@ -132,7 +117,7 @@ def get_used_data():
 
 
 if __name__ == '__main__':
-    print(f'Data allowance: {get_allowance()}GB')
+    print(f'Data allowance: {get_allowance()[0]}GB')
     print(f'Used data: {get_used_data()}GB')
     print(f'Remaining data: {get_remaining_data()}GB')
     print(f'Saved data: {get_savings()}GB')
