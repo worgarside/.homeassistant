@@ -33,7 +33,7 @@ def _get_remaining_data():
             if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
                 usage = usage / 1024
             else:
-                raise ValueError(f'Unknown allowance__left element: {allowance__left}')
+                raise ValueError('Unknown allowance__left element: {}'.format(allowance__left))
 
             return round(usage, 2)
         except (AttributeError, ReadTimeout):
@@ -143,7 +143,7 @@ class DataAllowanceSensor(Entity):
                     hours_remaining, mins_remaining = [int(b.text) for b in
                                                        soup.body.find('p', attrs={'class': 'allowance__timespan'})('b')]
                 else:
-                    raise ValueError(f'Unknown allowance_left element: {allowance_left}')
+                    raise ValueError('Unknown allowance_left element: {}'.format(allowance_left))
 
                 hours_remaining += mins_remaining / 60
 
