@@ -36,7 +36,7 @@ def _get_allowance():
         days_remaining = 0
         hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
     else:
-        raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan))
+        raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan.strip()))
 
     hours_remaining += mins_remaining / 60
 
@@ -80,7 +80,7 @@ def _get_remaining_data():
             if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
                 usage = usage / 1024
             elif 'gb' not in allowance__left.lower() and 'mb' not in allowance__left.lower():
-                raise ValueError(f'Unknown allowance__left element: {allowance__left.strip()}')
+                raise ValueError('Unknown allowance__left element: {}'.format(allowance__left.strip()))
 
             return round(usage, 2)
         except (AttributeError, ReadTimeout):
