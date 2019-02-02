@@ -1,0 +1,28 @@
+title: Home
+path: default_view
+cards:
+  - show_header_toggle: true
+    type: entities
+    title: Light
+    entities:
+      - entity: light.bedroom
+      - entity: light.study
+  - type: media-control
+    entity: media_player.all_speakers
+  - type: media-control
+    entity: media_player.hifi_system
+  - type: media-control
+    entity: media_player.study_home_mini
+  - type: media-control
+    entity: media_player.google_chromecast
+  - type: media-control
+    entity: media_player.bedroom_home_mini
+badges:
+  - device_tracker.google_maps_113979464641038639988
+  - sensor.data_savings
+  - sensor.daily_step_count
+  - sensor.body_weight
+  - sensor.dark_sky_temperature
+  - sensor.ytd_run_time
+  - sensor.data_allowance
+  - sensor.used_data

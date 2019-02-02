@@ -18,3 +18,7 @@ sensors.yaml
 Pipfile
 Pipfile.lock
 README.md
+ui-lovelace.yaml
+www/bignumber-card.js
+ui-configs/home.yaml
+ui-configs/makerspace.yaml
