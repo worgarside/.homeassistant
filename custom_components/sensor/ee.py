@@ -225,16 +225,16 @@ class DataSavingsSensor(Entity):
                 usage = round(usage, 2)
                 savings = round(allowance - (DATA_LIMIT - usage), 2)
 
-                if savings < 2:
-                    pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/ee_allowance_notif_time.pkl'
-                    with open(pkl_file_path, 'rb') as f:
-                        last_time = load(f)
-
-                    if (datetime.now() - last_time) > 21600:
-                        _send_notification('EE Data Warning',
-                                           'Your data savings has dropped below 2GB: {}'.format(savings))
-                        with open(pkl_file_path, 'wb') as f:
-                            dump(datetime.now(), f)
+                # if savings < 2:
+                #     pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/ee_allowance_notif_time.pkl'
+                #     with open(pkl_file_path, 'rb') as f:
+                #         last_time = load(f)
+                #
+                #     if (datetime.now() - last_time) > 21600:
+                #         _send_notification('EE Data Warning',
+                #                            'Your data savings has dropped below 2GB: {}'.format(savings))
+                #         with open(pkl_file_path, 'wb') as f:
+                #             dump(datetime.now(), f)
 
                 break
             except (AttributeError, ReadTimeout):
