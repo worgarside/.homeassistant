@@ -24,17 +24,22 @@ def _get_allowance():
 
     allowance__timespan = refined_soup.text.strip().lower()
 
+    days_remaining = 0
+    hours_remaining = 0
+    mins_remaining = 0
     if 'days' in allowance__timespan or 'day' in allowance__timespan:
         days_remaining, hours_remaining = [int(b.text) for b in refined_soup('b')]
-        mins_remaining = 0
-    elif 'mins' in allowance__timespan \
-            or 'min' in allowance__timespan:
-        days_remaining = 0
-        hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
-    elif len(refined_soup('b')) == 1 and ('days' not in allowance__timespan or 'day' not in allowance__timespan):
-        days_remaining = 0
+    elif 'mins' in allowance__timespan or 'min' in allowance__timespan:
+        if len(refined_soup('b')) == 2:
+            hours_remaining, mins_remaining = [int(b.text) for b in refined_soup('b')]
+        elif len(refined_soup('b')) == 1:
+            mins_remaining = [int(b.text) for b in refined_soup('b')]
+        else:
+            raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan.strip()))
+    elif len(refined_soup('b')) == 1 \
+            and ('days' not in allowance__timespan or 'day' not in allowance__timespan) \
+            and ('mins' not in allowance__timespan or 'min' not in allowance__timespan):
         hours_remaining = [int(b.text) for b in refined_soup('b')]
-        mins_remaining = 0
     else:
         raise ValueError('Unknown allowance__timespan element: {}'.format(allowance__timespan.strip()))
 
