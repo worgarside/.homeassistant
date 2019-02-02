@@ -1,0 +1,10 @@
+title: 15 Robins Court
+
+resources:
+  - url: /local/bignumber-card.js?v=1
+    type: js
+
+views:
+  - !include ui-configs/home.yaml
+  - !include ui-configs/makerspace.yaml
+
