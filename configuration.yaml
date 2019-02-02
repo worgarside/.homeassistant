@@ -29,66 +29,42 @@ recorder:
       - switch.deluge_switch
       - sensor.deluge_status
 
-# Show links to resources in log and frontend
-# introduction:
-
-# Enables the frontend
-frontend:
-
-# Enables configuration UI
-config:
-
-# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
- http:
-#   base_url: example.duckdns.org:8123
-   api_password: !secret appdaemon_token
-
-
-# Checks for available updates
-# Note: This component will send some information about your system to
-# the developers to assist with development of Home Assistant.
-# For more information, please see:
-# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
-updater:
-  # Optional, allows Home Assistant developers to focus on popular components.
-  # include_used_components: true
-
-# Discover some devices automatically
-discovery:
-
-# Allows you to issue voice commands from the frontend in enabled browsers
-conversation:
-
-# Enables support for tracking state changes over time
-history:
-
-# View all events in a logbook
-logbook:
-
-# Enables a map showing the location of tracked devices
-map:
-
-# Track the sun
-sun:
-
-# Sensors
-sensor: !include sensors.yaml
-
-switch: !include switches.yaml
-
+tts:
+  - platform: google
 
 device_tracker:
   - platform: google_maps
     username: !secret dev_email
     password: !secret dev_password
 
-# Text to speech
-tts:
-  - platform: google
+http:
+  api_password: !secret appdaemon_token
 
-# Cloud
+octoprint:
+  host: !secret octoprint_host
+  api_key: !secret octoprint_api_key
+  name: Prusa i3 Mk3
+  bed: true
+
+camera:
+  - platform: mjpeg
+    name: Prusa i3 Mk3
+    still_image_url: !secret octoprint_snapshot
+    mjpeg_url: !secret octoprint_stream
+
+updater:
+frontend:
+config:
+discovery:
+conversation:
+history:
+logbook:
+map:
+sun:
 cloud:
 
+sensor: !include sensors.yaml
+switch: !include switches.yaml
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
