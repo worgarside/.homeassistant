@@ -99,3 +99,11 @@ cards:
         icon: mdi:printer-alert
       - entity: sensor.prusa_i3_mk3_current_state
         name: Current Status
+
+  - type: history-graph
+    title: 'Ambient Conditions'
+    entities:
+      - entity: sensor.prusa_mk3_ambient_temperature
+        name: Temperature
+      - entity: sensor.prusa_mk3_ambient_humidity
+        name: Humidity

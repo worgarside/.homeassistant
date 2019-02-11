@@ -45,3 +45,15 @@
 #    - 'current_status'
 #    - 'download_speed'
 #    - 'upload_speed'
+
+- platform: mqtt
+  name: "Prusa Mk3 Ambient Temperature"
+  state_topic: !secret prusa_temp_humid_mqtt_topic
+  unit_of_measurement: '°C'
+  value_template: "{{ value_json.temperature }}"
+
+- platform: mqtt
+  name: "Prusa Mk3 Ambient Humidity"
+  state_topic: !secret prusa_temp_humid_mqtt_topic
+  unit_of_measurement: '%'
+  value_template: "{{ value_json.humidity }}"
