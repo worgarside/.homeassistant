@@ -3,8 +3,12 @@ title: 15 Robins Court
 resources:
   - url: /local/bignumber-card.js?v=1
     type: js
+  - url: /local/vertical-stack-in-card.js?v=0.1.1
+    type: js
+#  - url: /local/graph-card.js?v=0.1
+#    type: js
 
 views:
-  - !include ui-configs/home.yaml
-  - !include ui-configs/makerspace.yaml
-
+  - !include lovelace/home.yaml
+#  - !include lovelace/makerspace.yaml
+#  - !include lovelace/pi_monitoring.yaml

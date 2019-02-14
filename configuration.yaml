@@ -7,7 +7,7 @@ homeassistant:
   time_zone: UTC
   customize: !include customize.yaml
   auth_providers:
-    - type: legacy_api_password
+#    - type: legacy_api_password
     - type: homeassistant
 
 lovelace:
@@ -38,29 +38,27 @@ recorder:
 tts:
   - platform: google
 
-device_tracker:
-  - platform: google_maps
-    username: !secret dev_email
-    password: !secret dev_password
+#http:
+#  api_password: !secret appdaemon_token
 
-http:
-  api_password: !secret appdaemon_token
+# ==================== OctoPrint ==================== #
 
-octoprint:
-  host: !secret octoprint_host
-  api_key: !secret octoprint_api_key
-  name: Prusa i3 Mk3
-  bed: true
-  number_of_tools: 1
+#octoprint:
+#  host: !secret octoprint_host
+#  api_key: !secret octoprint_api_key
+#  name: Prusa i3 Mk3
+#  bed: true
+#  number_of_tools: 1
 
-camera:
-  - platform: mjpeg
-    name: Prusa i3 Mk3
-    still_image_url: !secret octoprint_snapshot
-    mjpeg_url: !secret octoprint_stream
+#camera:
+#  - platform: mjpeg
+#    name: Prusa i3 Mk3
+#    still_image_url: !secret octoprint_snapshot
+#    mjpeg_url: !secret octoprint_stream
 
-mqtt:
-  broker: !secret mqtt_host
+
+#mqtt:
+#  broker: !secret mqtt_host
 
 updater:
 frontend:
