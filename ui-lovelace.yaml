@@ -5,10 +5,10 @@ resources:
     type: js
   - url: /local/vertical-stack-in-card.js?v=0.1.1
     type: js
-#  - url: /local/graph-card.js?v=0.1
-#    type: js
+  - url: /local/dual-gauge-card.js?v=1
+    type: js
 
 views:
   - !include lovelace/home.yaml
-#  - !include lovelace/makerspace.yaml
+  - !include lovelace/makerspace.yaml
 #  - !include lovelace/pi_monitoring.yaml

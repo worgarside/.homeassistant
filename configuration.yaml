@@ -38,6 +38,7 @@ recorder:
       - light.hue_color_lamp_2
       - light.hue_color_lamp_1
       - sun.sun
+      - camera.prusa_i3_mk3
 
 tts:
   - platform: google
@@ -47,18 +48,18 @@ tts:
 
 # ==================== OctoPrint ==================== #
 
-#octoprint:
-#  host: !secret octoprint_host
-#  api_key: !secret octoprint_api_key
-#  name: Prusa i3 Mk3
-#  bed: true
-#  number_of_tools: 1
+octoprint:
+  host: !secret octoprint_host
+  api_key: !secret octoprint_api_key
+  name: Prusa i3 Mk3
+  bed: true
+  number_of_tools: 1
 
-#camera:
-#  - platform: mjpeg
-#    name: Prusa i3 Mk3
-#    still_image_url: !secret octoprint_snapshot
-#    mjpeg_url: !secret octoprint_stream
+camera:
+  - platform: mjpeg
+    name: Prusa i3 Mk3
+    still_image_url: !secret octoprint_snapshot
+    mjpeg_url: !secret octoprint_stream
 
 
 mqtt:
