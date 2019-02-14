@@ -1,14 +1,21 @@
-from os import getenv
+from os import getenv, path
 
 from dotenv import load_dotenv
 from homeassistant.helpers.entity import Entity
 
 REQUIREMENTS = ['beautifulsoup4', 'python-dotenv']
 
-load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
+HOME_ASSISTANT = '.homeassistant'
+DIRNAME, _ = path.split(path.abspath(__file__))
+HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
+SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
+
+load_dotenv('{}.env'.format(SECRET_FILES_DIR))
 
 PB_API_KEY = getenv('PB_API_KEY')
 DATA_LIMIT = 200.00
+
+EE_URL = 'http://add-on.ee.co.uk/mbbstatus'
 
 
 def _get_allowance():
@@ -17,7 +24,7 @@ def _get_allowance():
     from datetime import datetime
     from math import ceil
 
-    res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
+    res = get(EE_URL, timeout=5)
     soup = BeautifulSoup(res.content, 'html.parser')
 
     refined_soup = soup.body.find('p', attrs={'class': 'allowance__timespan'})
@@ -71,7 +78,7 @@ def _get_remaining_data():
 
     while True:
         try:
-            res = get('http://add-on.ee.co.uk/mbbstatus', timeout=5)
+            res = get(EE_URL, timeout=5)
 
             soup = BeautifulSoup(res.content, 'html.parser')
             for small in soup('small'):
@@ -210,10 +217,8 @@ class DataSavingsSensor(Entity):
 
     def update(self):
         from requests import ReadTimeout
-        from datetime import datetime
         from time import sleep
         from re import sub
-        from pickle import dump, load
         while True:
             try:
                 allowance, soup = _get_allowance()
@@ -229,17 +234,6 @@ class DataSavingsSensor(Entity):
 
                 usage = round(usage, 2)
                 savings = round(allowance - (DATA_LIMIT - usage), 2)
-
-                # if savings < 2:
-                #     pkl_file_path = '/home/homeassistant/.homeassistant/custom_components/sensor/vars/ee_allowance_notif_time.pkl'
-                #     with open(pkl_file_path, 'rb') as f:
-                #         last_time = load(f)
-                #
-                #     if (datetime.now() - last_time) > 21600:
-                #         _send_notification('EE Data Warning',
-                #                            'Your data savings has dropped below 2GB: {}'.format(savings))
-                #         with open(pkl_file_path, 'wb') as f:
-                #             dump(datetime.now(), f)
 
                 break
             except (AttributeError, ReadTimeout):

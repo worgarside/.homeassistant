@@ -1,12 +1,21 @@
 from datetime import datetime, timedelta
+from os import path
 from time import mktime
 
 from homeassistant.const import MASS_KILOGRAMS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-CLIENT_SECRETS_FILE = '/home/homeassistant/.homeassistant/secret_files/google_client_secrets.json'
-CREDENTIALS_FILE = '/home/homeassistant/.homeassistant/secret_files/google_credentials.json'
+REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
+
+HOME_ASSISTANT = '.homeassistant'
+DIRNAME, _ = path.split(path.abspath(__file__))
+HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
+SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
+LOG_DIRECTORY = '{}logs/'.format(HASS_DIR)
+
+CLIENT_SECRETS_FILE = '{}google_client_secrets.json'.format(SECRET_FILES_DIR)
+CREDENTIALS_FILE = '{}google_credentials.json'.format(SECRET_FILES_DIR)
 
 USER_ID = 'me'
 API_SERVICE_NAME = 'fitness'
@@ -18,14 +27,11 @@ SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read',
           'https://www.googleapis.com/auth/fitness.nutrition.read']
 MAX_RETRIES = 5
 
-REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
-LOG_DIRECTORY = '/home/homeassistant/.homeassistant/logs'
-
 
 def log(m='', log_dir=LOG_DIRECTORY, file_prefix='hass_activity', newline=False):
     n = datetime.now()
     with open(
-            '{}/{}_{}-{:02d}-{:02d}.log'.format(log_dir, file_prefix, n.year, n.month, n.day),
+            '{}{}_{}-{:02d}-{:02d}.log'.format(log_dir, file_prefix, n.year, n.month, n.day),
             'a') as f:
         if newline:
             f.write('\n')
