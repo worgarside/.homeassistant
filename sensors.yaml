@@ -5,31 +5,19 @@
     - precip_intensity
     - temperature
 
-- platform: ee
-
-- platform: google_fit
-
-- platform: my_fitness_pal
-
-- platform: strava
-
 - platform: uptime
   name: Time Online
   unit_of_measurement: hours
 
-- platform: systemmonitor
-  resources:
-    - type: disk_use_percent
-      arg: /home
-    - type: memory_free
-    - type: network_in
-      arg: eth0
-    - type: network_out
-      arg: eth0
-    - type: processor_use
-    - type: load_1m
-    - type: load_5m
-    - type: load_15m
+# ==================== Custom Sensors ==================== #
+
+#- platform: ee
+#
+#- platform: google_fit
+#
+#- platform: strava
+
+# ==================== MQTT ==================== #
 
 - platform: command_line
   name: CPU Temp
@@ -37,23 +25,78 @@
   unit_of_measurement: "°C"
   value_template: '{{ value | multiply(0.001) | round(2)  }}'
 
-#- platform: deluge
-#  host: 192.168.1.2
-#  username: !secret deluge_username
-#  password: !secret deluge_password
-#  monitored_variables:
-#    - 'current_status'
-#    - 'download_speed'
-#    - 'upload_speed'
+#- platform: mqtt
+#  name: "Prusa Mk3 Ambient Temperature"
+#  state_topic: !secret prusa_temp_humid_mqtt_topic
+#  unit_of_measurement: '°C'
+#  value_template: "{{ value_json.temperature }}"
+#
+#- platform: mqtt
+#  name: "Prusa Mk3 Ambient Humidity"
+#  state_topic: !secret prusa_temp_humid_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.humidity }}"
 
-- platform: mqtt
-  name: "Prusa Mk3 Ambient Temperature"
-  state_topic: !secret prusa_temp_humid_mqtt_topic
-  unit_of_measurement: '°C'
-  value_template: "{{ value_json.temperature }}"
+# ------------------- OctoPi ------------------- #
 
-- platform: mqtt
-  name: "Prusa Mk3 Ambient Humidity"
-  state_topic: !secret prusa_temp_humid_mqtt_topic
-  unit_of_measurement: '%'
-  value_template: "{{ value_json.humidity }}"
+#- platform: mqtt
+#  name: "OctoPi CPU Temp"
+#  state_topic: !secret octopi_stats_mqtt_topic
+#  unit_of_measurement: '°C'
+#  value_template: "{{ value_json.temperature }}"
+#
+#- platform: mqtt
+#  name: "OctoPi Disk Usage"
+#  state_topic: !secret octopi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.disk_usage_percent }}"
+#
+#- platform: mqtt
+#  name: "OctoPi Memory Usage"
+#  state_topic: !secret octopi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.memory_usage }}"
+#
+#- platform: mqtt
+#  name: "OctoPi CPU Usage"
+#  state_topic: !secret octopi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.cpu_usage }}"
+#
+#- platform: mqtt
+#  name: "OctoPi Load (15m)"
+#  state_topic: !secret octopi_stats_mqtt_topic
+#  unit_of_measurement: ' '
+#  value_template: "{{ value_json.load_15m }}"
+
+# ------------------- HassPi ------------------- #
+
+#- platform: mqtt
+#  name: "HAssPi CPU Temp"
+#  state_topic: !secret hasspi_stats_mqtt_topic
+#  unit_of_measurement: '°C'
+#  value_template: "{{ value_json.temperature }}"
+#
+#- platform: mqtt
+#  name: "HAssPi Disk Usage"
+#  state_topic: !secret hasspi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.disk_usage_percent }}"
+#
+#- platform: mqtt
+#  name: "HAssPi Memory Usage"
+#  state_topic: !secret hasspi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.memory_usage }}"
+#
+#- platform: mqtt
+#  name: "HAssPi CPU Usage"
+#  state_topic: !secret hasspi_stats_mqtt_topic
+#  unit_of_measurement: '%'
+#  value_template: "{{ value_json.cpu_usage }}"
+#
+#- platform: mqtt
+#  name: "HAssPi Load (15m)"
+#  state_topic: !secret hasspi_stats_mqtt_topic
+#  unit_of_measurement: ' '
+#  value_template: "{{ value_json.load_15m }}"
