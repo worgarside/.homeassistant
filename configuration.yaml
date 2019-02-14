@@ -34,6 +34,10 @@ recorder:
       - sensor.deluge_status
       - binary_sensor.prusa_i3_mk3_printing
       - binary_sensor.prusa_i3_mk3_printing_error
+      - group.all_lights
+      - light.hue_color_lamp_2
+      - light.hue_color_lamp_1
+      - sun.sun
 
 tts:
   - platform: google
@@ -57,8 +61,8 @@ tts:
 #    mjpeg_url: !secret octoprint_stream
 
 
-#mqtt:
-#  broker: !secret mqtt_host
+mqtt:
+  broker: !secret mqtt_host
 
 updater:
 frontend:

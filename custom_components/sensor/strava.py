@@ -32,8 +32,7 @@ JSON = {
 def log(m='', newline=False):
     from datetime import datetime
     now = datetime.now()
-    with open('/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month,
-                                                                                                  now.day),
+    with open('{}hass_activity_{}-{:02d}-{:02d}.log'.format(LOG_DIRECTORY, now.year, now.month, now.day),
               'a') as f:
         if newline:
             f.write('\n')
