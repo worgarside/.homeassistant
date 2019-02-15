@@ -34,6 +34,11 @@ recorder:
       - sensor.deluge_status
       - binary_sensor.prusa_i3_mk3_printing
       - binary_sensor.prusa_i3_mk3_printing_error
+      - group.all_lights
+      - light.hue_color_lamp_2
+      - light.hue_color_lamp_1
+      - sun.sun
+      - camera.prusa_i3_mk3
 
 tts:
   - platform: google
@@ -43,22 +48,26 @@ tts:
 
 # ==================== OctoPrint ==================== #
 
-#octoprint:
-#  host: !secret octoprint_host
-#  api_key: !secret octoprint_api_key
-#  name: Prusa i3 Mk3
-#  bed: true
-#  number_of_tools: 1
+octoprint:
+  host: !secret octoprint_host
+  api_key: !secret octoprint_api_key
+  name: Prusa i3 Mk3
+  bed: true
+  number_of_tools: 1
 
-#camera:
-#  - platform: mjpeg
-#    name: Prusa i3 Mk3
-#    still_image_url: !secret octoprint_snapshot
-#    mjpeg_url: !secret octoprint_stream
+camera:
+  - platform: mjpeg
+    name: Prusa i3 Mk3
+    still_image_url: !secret octoprint_snapshot
+    mjpeg_url: !secret octoprint_stream
 
 
-#mqtt:
-#  broker: !secret mqtt_host
+mqtt:
+  broker: !secret mqtt_host
+
+custom_updater:
+  card_urls:
+    - https://raw.githubusercontent.com/kalkih/mini-graph-card/master/tracker.json
 
 updater:
 frontend:
@@ -70,6 +79,7 @@ logbook:
 map:
 sun:
 cloud:
+system_health:
 
 sensor: !include sensors.yaml
 switch: !include switches.yaml

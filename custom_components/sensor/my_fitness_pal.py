@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from os import getenv
+from os import getenv, path
 
 from dotenv import load_dotenv
 from homeassistant.const import MASS_GRAMS
@@ -8,16 +8,23 @@ from homeassistant.util import Throttle
 
 REQUIREMENTS = ['myfitnesspal', 'python-dotenv']
 
-load_dotenv('/home/homeassistant/.homeassistant/secret_files/.env')
+HOME_ASSISTANT = '.homeassistant'
+DIRNAME, _ = path.split(path.abspath(__file__))
+HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
+SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
+LOG_DIRECTORY = '{}logs/'.format(HASS_DIR)
+
+load_dotenv('{}.env'.format(SECRET_FILES_DIR))
+
 EMAIL = getenv('EMAIL')
 PASSWORD = getenv('MFP_PASSWORD')
 MAX_RETRIES = 5
 
+
 def log(m='', newline=False):
     now = datetime.now()
 
-    with open('/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month, now.day),
-              'a') as f:
+    with open('{}hass_activity_{}-{:02d}-{:02d}.log'.format(LOG_DIRECTORY, now.year, now.month, now.day), 'a') as f:
         if newline:
             f.write('\n')
         f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'

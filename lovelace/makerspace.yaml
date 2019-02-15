@@ -1,109 +1,133 @@
 title: Makerspace
+panel: true
 cards:
-  - type: picture-entity
-    entity: camera.prusa_i3_mk3
-    name: Prusa i3 Mk3 Live Feed
-    show_state: false
-    tap_action: more-info
-
-  - type: vertical-stack
-    cards:
-      - type: horizontal-stack
-        cards:
-          - type: gauge
-            title: Bed Temp
-            name: Current Bed Temperature
-            entity: sensor.prusa_i3_mk3_actual_bed_temp
-            unit_of_measurement: °C
-            min: 0
-            max: 150
-            severity:
-              red: 120
-              amber: 0
-              green: 60
-
-          - type: gauge
-            title: Hot End Temp
-            name: Current Hot End Temperature
-            entity: sensor.prusa_i3_mk3_actual_tool0_temp
-            unit_of_measurement: °C
-            min: 0
-            max: 260
-            severity:
-              red: 225
-              amber: 0
-              green: 200
-
-      - type: horizontal-stack
-        cards:
-          - type: gauge
-            title: Target Bed Temp
-            name: Target Bed Temperature
-            entity: sensor.prusa_i3_mk3_target_bed_temp
-            unit_of_measurement: °C
-            min: 0
-            max: 150
-            severity:
-              red: 120
-              amber: 0
-              green: 60
-
-          - type: gauge
-            title: Target Hot End Temp
-            name: Target Hot End Temperature
-            entity: sensor.prusa_i3_mk3_target_tool0_temp
-            unit_of_measurement: °C
-            min: 0
-            max: 260
-            severity:
-              red: 225
-              amber: 0
-              green: 200
-
-  - type: custom:bignumber-card
-    title: Current Job Completion Status
-    entity: sensor.prusa_i3_mk3_job_percentage
-    scale: 30px
-    from: left
-    min: 0
-    max: 100
-    severity:
-      - value: 20
-        style: 'var(--label-badge-red)'
-      - value: 40
-        style: 'var(--label-badge-yellow)'
-      - value: 70
-        style: 'var(--label-badge-green)'
-
   - type: horizontal-stack
     cards:
-      - type: sensor
-        name: Elapsed
-        entity: sensor.prusa_i3_mk3_time_elapsed
-        graph: none
+      - type: vertical-stack
+        cards:
+          - type: custom:dual-gauge-card
+            title: Hot End Temp
+            min: 0
+            max: 250
+            inner:
+              entity: sensor.prusa_i3_mk3_actual_tool0_temp
+              unit: °C
+              label: Actual
+            outer:
+              entity: sensor.prusa_i3_mk3_target_tool0_temp
+              unit: °C
+              label: Target
 
-      - type: sensor
-        name: Remaining
-        entity: sensor.prusa_i3_mk3_time_remaining
-        graph: none
+          - type: custom:dual-gauge-card
+            title: Bed Temp
+            min: 0
+            max: 100
+            inner:
+              entity: sensor.prusa_i3_mk3_actual_bed_temp
+              unit: °C
+              label: Actual
+            outer:
+              entity: sensor.prusa_i3_mk3_target_bed_temp
+              unit: °C
+              label: Target
 
-  - type: glance
-    show_header_toggle: false
-    column_width: calc(100% / 3)
-    entities:
-      - entity: binary_sensor.prusa_i3_mk3_printing
-        name: Printing Status
-        icon: mdi:printer-wireless
-      - entity: binary_sensor.prusa_i3_mk3_printing_error
-        name:  Error State
-        icon: mdi:printer-alert
-      - entity: sensor.prusa_i3_mk3_current_state
-        name: Current Status
+      - type: vertical-stack
+        cards:
+          - type: custom:bignumber-card
+            title: Current Job Completion Status
+            entity: sensor.prusa_i3_mk3_job_percentage
+            scale: 30px
+            from: left
+            min: 0
+            max: 100
+            severity:
+              - value: 20
+                style: 'var(--label-badge-red)'
+              - value: 40
+                style: 'var(--label-badge-yellow)'
+              - value: 70
+                style: 'var(--label-badge-green)'
 
-  - type: history-graph
-    title: 'Ambient Conditions'
-    entities:
-      - entity: sensor.prusa_mk3_ambient_temperature
-        name: Temperature
-      - entity: sensor.prusa_mk3_ambient_humidity
-        name: Humidity
+          - type: picture-entity
+            entity: camera.prusa_i3_mk3
+            name: Prusa i3 Mk3 Live Feed
+
+          - type: glance
+            show_header_toggle: false
+            column_width: calc(100% / 3)
+            entities:
+              - entity: binary_sensor.prusa_i3_mk3_printing
+                name: Printing Status
+                icon: mdi:printer-wireless
+              - entity: binary_sensor.prusa_i3_mk3_printing_error
+                name:  Error State
+                icon: mdi:printer-alert
+              - entity: sensor.prusa_i3_mk3_current_state
+                name: Current Status
+
+#      - type: history-graph
+#        title: 'Ambient Conditions'
+#        entities:
+#          - entity: sensor.prusa_mk3_ambient_temperature
+#            name: Temperature
+#          - entity: sensor.prusa_mk3_ambient_humidity
+#            name: Humidity
+
+      - type: custom:vertical-stack-in-card
+        title: 'Ambient Conditions'
+        cards:
+          - type: custom:mini-graph-card
+            name: Temperature
+            hours_to_show: 24
+            lower_bound: 20
+            upper_bound: 40
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_mk3_ambient_temperature
+            # TODO: make this more temp-related - e.g. blue to red?
+            color_thresholds:
+              - value: 0 # 20
+                color: '#38D138'
+              - value: 25
+                color: '#5EAB38'
+              - value: 30
+                color: '#858438'
+              - value: 35
+                color: '#AB5E37'
+              - value: 40
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
+            name: Humidity
+            hours_to_show: 24
+            lower_bound: 30
+            upper_bound: 60
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            icon: mdi:water
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_mk3_ambient_humidity
+            color_thresholds:
+              - value: 0 # 30
+                color: '#38D138'
+              - value: 50
+                color: '#57B238'
+              - value: 52.5
+                color: '#759338'
+              - value: 55
+                color: '#947537'
+              - value: 57.5
+                color: '#B25637'
+              - value: 60
+                color: '#D13737'

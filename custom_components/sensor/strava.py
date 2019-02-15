@@ -1,10 +1,20 @@
 from datetime import timedelta
-from os import getenv
+from os import getenv, path
+
+from dotenv import load_dotenv
+from homeassistant.const import LENGTH_METERS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-from homeassistant.const import LENGTH_METERS
 
-CLIENT_SECRETS_FILE = '/home/homeassistant/.homeassistant/secret_files/strava_client_secrets.json'
+HOME_ASSISTANT = '.homeassistant'
+DIRNAME, _ = path.split(path.abspath(__file__))
+HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
+SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
+LOG_DIRECTORY = '{}logs/'.format(HASS_DIR)
+
+CLIENT_SECRETS_FILE = '{}strava_client_secrets.json'.format(SECRET_FILES_DIR)
+
+load_dotenv('{}.env'.format(SECRET_FILES_DIR))
 
 STRAVA_USER_ID = getenv('STRAVA_USER_ID')
 STRAVA_CLIENT_ID = getenv('STRAVA_CLIENT_ID')
@@ -22,8 +32,7 @@ JSON = {
 def log(m='', newline=False):
     from datetime import datetime
     now = datetime.now()
-    with open('/home/homeassistant/.homeassistant/logs/hass_activity_{}-{:02d}-{:02d}.log'.format(now.year, now.month,
-                                                                                                  now.day),
+    with open('{}hass_activity_{}-{:02d}-{:02d}.log'.format(LOG_DIRECTORY, now.year, now.month, now.day),
               'a') as f:
         if newline:
             f.write('\n')
@@ -36,7 +45,8 @@ def _refresh_access_token(access_token):
     from requests import post
     from json import dump
 
-    res = post('https://www.strava.com/oauth/token', headers={'Authorization': 'Bearer {}'.format(access_token)}, json=JSON)
+    res = post('https://www.strava.com/oauth/token', headers={'Authorization': 'Bearer {}'.format(access_token)},
+               json=JSON)
     with open(CLIENT_SECRETS_FILE, 'w') as f:
         dump(res.json(), f)
     return res.json()['access_token']
@@ -61,7 +71,7 @@ def _get_data(datum, ytd=False):
             access_token = _refresh_access_token(access_token)
     except (JSONDecodeError, KeyError) as e:
         print(e)
-        _refresh_access_token('abcdefghijklmnopqrstuvwxyz')
+        access_token = _refresh_access_token('abcdefghijklmnopqrstuvwxyz')
 
     athlete = _get_athlete()
 

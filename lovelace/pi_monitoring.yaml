@@ -3,122 +3,200 @@ panel: true
 cards:
   - type: horizontal-stack
     cards:
-#      - type: custom:vertical-stack-in-card
-#        title: 'HAssPi'
-#        cards:
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.hasspi_cpu_temp
-#                name: CPU Temp
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.hasspi_cpu_usage
-#                name: CPU Usage
-#              - entity: sensor.hasspi_disk_usage
-#                name: Disk Usage
-#              - entity: sensor.hasspi_memory_usage
-#                name: Memory Usage
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.hasspi_load_15m
-#                name: Load (15m)
-
-
-#      - type: custom:vertical-stack-in-card
-#        title: 'OctoPi'
-#        cards:
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.octopi_cpu_temp
-#                name: CPU Temp
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.octopi_cpu_usage
-#                name: CPU Usage
-#              - entity: sensor.octopi_disk_usage
-#                name: Disk Usage
-#              - entity: sensor.octopi_memory_usage
-#                name: Memory Usage
-#          - type: history-graph
-#            entities:
-#              - entity: sensor.octopi_load_15m
-#                name: Load (15m)
-
-
       - type: custom:vertical-stack-in-card
-        title: 'HAssPi'
+        title: HAssPi
         cards:
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
-            entities:
-              - entity: sensor.hasspi_cpu_temp
-                name: CPU Temp
-                color: "#720000"
-                smooth: 0
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
+          - type: custom:mini-graph-card
+            name: Resource Usage
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 180
+            icon: mdi:speedometer
+            show:
+              state: false
             entities:
               - entity: sensor.hasspi_cpu_usage
-                name: CPU Usage
-                color: "#720000"
-                smooth: 0
-              - entity: sensor.hasspi_disk_usage
-                name: Disk Usage
-                color: "#007200"
-                smooth: 0
+                color: '#d13737'
               - entity: sensor.hasspi_memory_usage
-                name: Memory Usage
-                color: "#000072"
-                smooth: 0
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
+                color: '#38d138'
+              - entity: sensor.hasspi_disk_usage
+                color: '#373cd1'
+
+          - type: custom:mini-graph-card
+            name: CPU Temperature
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 150
+            entities:
+              - entity: sensor.hasspi_cpu_temp
+            color_thresholds:
+              - value: 40
+                color: '#38D138'
+              - value: 45
+                color: '#4EBB38'
+              - value: 50
+                color: '#64A538'
+              - value: 55
+                color: '#7A8F38'
+              - value: 60
+                color: '#8F7937'
+              - value: 65
+                color: '#A56337'
+              - value: 70
+                color: '#BB4D37'
+              - value: 75
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
+            name: Load (15m)
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 4
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 75
+            icon: mdi:weight
             entities:
               - entity: sensor.hasspi_load_15m
-                name: Load (15m)
-                color: "#00b7c4"
-                smooth: 0
+                color: '#444444'
 
       - type: custom:vertical-stack-in-card
-        title: 'OctoPi'
+        title: OctoPi
         cards:
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
-            entities:
-              - entity: sensor.octopi_cpu_temp
-                name: CPU Temp
-                color: "#720000"
-                smooth: 0
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
+          - type: custom:mini-graph-card
+            name: Resource Usage
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 180
+            icon: mdi:speedometer
+            show:
+              state: false
             entities:
               - entity: sensor.octopi_cpu_usage
-                name: CPU Usage
-                color: "#720000"
-                smooth: 0
-              - entity: sensor.octopi_disk_usage
-                name: Disk Usage
-                color: "#007200"
-                smooth: 0
+                color: '#d13737'
               - entity: sensor.octopi_memory_usage
-                name: Memory Usage
-                color: "#000072"
-                smooth: 0
-          - type: custom:graph-card
-            hours_to_show: 12
-            update_interval: 10
-            zoom: 0
+                color: '#38d138'
+              - entity: sensor.octopi_disk_usage
+                color: '#373cd1'
+
+          - type: custom:mini-graph-card
+            name: CPU Temperature
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 150
+            entities:
+              - entity: sensor.octopi_cpu_temp
+            color_thresholds:
+              - value: 40
+                color: '#38D138'
+              - value: 45
+                color: '#4EBB38'
+              - value: 50
+                color: '#64A538'
+              - value: 55
+                color: '#7A8F38'
+              - value: 60
+                color: '#8F7937'
+              - value: 65
+                color: '#A56337'
+              - value: 70
+                color: '#BB4D37'
+              - value: 75
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
+            name: Load (15m)
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 4
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 75
+            icon: mdi:weight
             entities:
               - entity: sensor.octopi_load_15m
-                name: Load (15m)
-                color: "#00b7c4"
-                smooth: 0
+                color: '#444444'
+
+      - type: custom:vertical-stack-in-card
+        title: DataPi
+        cards:
+          - type: custom:mini-graph-card
+            name: Resource Usage
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 180
+            icon: mdi:speedometer
+            show:
+              state: false
+            entities:
+              - entity: sensor.datapi_cpu_usage
+                color: '#d13737'
+              - entity: sensor.datapi_memory_usage
+                color: '#38d138'
+              - entity: sensor.datapi_disk_usage
+                color: '#373cd1'
+
+          - type: custom:mini-graph-card
+            name: CPU Temperature
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 150
+            entities:
+              - entity: sensor.datapi_cpu_temp
+            color_thresholds:
+              - value: 40
+                color: '#38D138'
+              - value: 45
+                color: '#4EBB38'
+              - value: 50
+                color: '#64A538'
+              - value: 55
+                color: '#7A8F38'
+              - value: 60
+                color: '#8F7937'
+              - value: 65
+                color: '#A56337'
+              - value: 70
+                color: '#BB4D37'
+              - value: 75
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
+            name: Load (15m)
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 4
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 75
+            icon: mdi:weight
+            entities:
+              - entity: sensor.datapi_load_15m
+                color: '#444444'
