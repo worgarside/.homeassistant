@@ -7,8 +7,11 @@ resources:
     type: js
   - url: /local/dual-gauge-card.js?v=1
     type: js
+  - url: /local/tracker-card.js?v=0
+    type: js
 
 views:
   - !include lovelace/home.yaml
   - !include lovelace/makerspace.yaml
 #  - !include lovelace/pi_monitoring.yaml
+  - !include lovelace/admin.yaml

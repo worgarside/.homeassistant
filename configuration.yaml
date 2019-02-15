@@ -65,6 +65,10 @@ camera:
 mqtt:
   broker: !secret mqtt_host
 
+custom_updater:
+  card_urls:
+    - https://raw.githubusercontent.com/kalkih/mini-graph-card/master/tracker.json
+
 updater:
 frontend:
 config:
