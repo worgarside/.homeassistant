@@ -65,10 +65,69 @@ cards:
               - entity: sensor.prusa_i3_mk3_current_state
                 name: Current Status
 
-      - type: history-graph
+#      - type: history-graph
+#        title: 'Ambient Conditions'
+#        entities:
+#          - entity: sensor.prusa_mk3_ambient_temperature
+#            name: Temperature
+#          - entity: sensor.prusa_mk3_ambient_humidity
+#            name: Humidity
+
+      - type: custom:vertical-stack-in-card
         title: 'Ambient Conditions'
-        entities:
-          - entity: sensor.prusa_mk3_ambient_temperature
+        cards:
+          - type: custom:mini-graph-card
             name: Temperature
-          - entity: sensor.prusa_mk3_ambient_humidity
+            hours_to_show: 24
+            lower_bound: 20
+            upper_bound: 40
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_mk3_ambient_temperature
+            # TODO: make this more temp-related - e.g. blue to red?
+            color_thresholds:
+              - value: 0 # 20
+                color: '#38D138'
+              - value: 25
+                color: '#5EAB38'
+              - value: 30
+                color: '#858438'
+              - value: 35
+                color: '#AB5E37'
+              - value: 40
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
             name: Humidity
+            hours_to_show: 24
+            lower_bound: 30
+            upper_bound: 60
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            icon: mdi:water
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_mk3_ambient_humidity
+            color_thresholds:
+              - value: 0 # 30
+                color: '#38D138'
+              - value: 50
+                color: '#57B238'
+              - value: 52.5
+                color: '#759338'
+              - value: 55
+                color: '#947537'
+              - value: 57.5
+                color: '#B25637'
+              - value: 60
+                color: '#D13737'
