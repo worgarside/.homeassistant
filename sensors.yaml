@@ -9,6 +9,15 @@
   name: Time Online
   unit_of_measurement: hours
 
+- platform: deluge
+  host: !secret datapi_host
+  username: !secret deluge_username
+  password: !secret deluge_password
+  monitored_variables:
+    - 'current_status'
+    - 'download_speed'
+    - 'upload_speed'
+
 # ==================== Custom Sensors ==================== #
 
 - platform: ee
@@ -16,6 +25,8 @@
 - platform: google_fit
 
 - platform: strava
+
+- platform: hass_stats
 
 # ==================== MQTT ==================== #
 
