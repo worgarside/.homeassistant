@@ -12,6 +12,7 @@ google-auth-oauthlib = "*"
 locationsharinglib = "*"
 myfitnesspal = "*"
 python-dotenv = "*"
+"psycopg2-binary" = "*"
 
 [dev-packages]
 

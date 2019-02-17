@@ -8,7 +8,7 @@ cards:
           - type: custom:dual-gauge-card
             title: Hot End Temp
             min: 0
-            max: 250
+            max: 260
             inner:
               entity: sensor.prusa_i3_mk3_actual_tool0_temp
               unit: °C
@@ -65,14 +65,6 @@ cards:
               - entity: sensor.prusa_i3_mk3_current_state
                 name: Current Status
 
-#      - type: history-graph
-#        title: 'Ambient Conditions'
-#        entities:
-#          - entity: sensor.prusa_mk3_ambient_temperature
-#            name: Temperature
-#          - entity: sensor.prusa_mk3_ambient_humidity
-#            name: Humidity
-
       - type: custom:vertical-stack-in-card
         title: 'Ambient Conditions'
         cards:
@@ -90,18 +82,33 @@ cards:
               fill: false
             entities:
               - entity: sensor.prusa_mk3_ambient_temperature
-            # TODO: make this more temp-related - e.g. blue to red?
             color_thresholds:
               - value: 0 # 20
-                color: '#38D138'
-              - value: 25
-                color: '#5EAB38'
-              - value: 30
-                color: '#858438'
-              - value: 35
-                color: '#AB5E37'
-              - value: 40
-                color: '#D13737'
+                color: '#3366FF'
+              - value: 22.5
+                color: '#4462EA'
+              - value: 25.0
+                color: '#555ED5'
+              - value: 27.5
+                color: '#665AC0'
+              - value: 30.0
+                color: '#7755AA'
+              - value: 32.5
+                color: '#885195'
+              - value: 35.0
+                color: '#994D80'
+              - value: 37.5
+                color: '#AA496B'
+              - value: 40.0
+                color: '#BB4455'
+              - value: 42.5
+                color: '#CC4040'
+              - value: 45.0
+                color: '#DD3C2B'
+              - value: 47.5
+                color: '#EE3715'
+              - value: 50.0
+                color: '#FF3300'
 
           - type: custom:mini-graph-card
             name: Humidity
