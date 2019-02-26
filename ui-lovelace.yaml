@@ -14,6 +14,8 @@ resources:
   - type: css
     url: 'https://fonts.googleapis.com/css?family=Raleway'
 
+background: center / cover no-repeat url("/local/bg-clear.jpeg") fixed
+
 views:
   - !include lovelace/home.yaml
   - !include lovelace/makerspace.yaml
