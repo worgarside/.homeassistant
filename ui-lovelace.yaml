@@ -1,15 +1,15 @@
 title: 15 Robins Court
 
 resources:
-  - url: /local/bignumber-card.js?v=1?track=true
+  - url: /local/bignumber-card.js?v=1
     type: js
-  - url: /local/vertical-stack-in-card.js?v=0.1.1?track=true
+  - url: /local/vertical-stack-in-card.js?v=0.1.1
     type: js
   - url: /local/dual-gauge-card.js?v=1?track=true
     type: js
-  - url: /local/mini-graph-card-bundle.js?v=0.2.4?track=true
+  - url: /local/mini-graph-card-bundle.js?v=0.2.4
     type: module
-  - url: /local/tracker-card.js?v=0?track=true
+  - url: /local/tracker-card.js?v=0
     type: js
   - type: css
     url: 'https://fonts.googleapis.com/css?family=Raleway'
