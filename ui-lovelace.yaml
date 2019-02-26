@@ -11,6 +11,8 @@ resources:
     type: module
   - url: /local/tracker-card.js?v=0
     type: js
+  - type: css
+    url: 'https://fonts.googleapis.com/css?family=Raleway'
 
 views:
   - !include lovelace/home.yaml
