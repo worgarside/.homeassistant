@@ -5,12 +5,18 @@ resources:
     type: js
   - url: /local/vertical-stack-in-card.js?v=0.1.1
     type: js
-  - url: /local/dual-gauge-card.js?v=1
+  - url: /local/dual-gauge-card.js?v=1?track=true
     type: js
   - url: /local/mini-graph-card-bundle.js?v=0.2.4
     type: module
   - url: /local/tracker-card.js?v=0
     type: js
+  - type: css
+    url: 'https://fonts.googleapis.com/css?family=Raleway'
+  - url: /local/compact-custom-header.js?v=0.0.1?track=true
+    type: module
+
+background: center / cover no-repeat url("/local/bg-clear.jpeg") fixed
 
 views:
   - !include lovelace/home.yaml

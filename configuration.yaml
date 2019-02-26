@@ -49,6 +49,10 @@ panel_iframe:
     url: 'http://192.168.1.3'
     icon: 'mdi:printer-3d'
 
+frontend:
+  themes: !include lovelace/themes.yaml
+
+
 #http:
 #  api_password: !secret appdaemon_token
 
@@ -76,7 +80,6 @@ custom_updater:
     - https://raw.githubusercontent.com/kalkih/mini-graph-card/master/tracker.json
 
 updater:
-frontend:
 config:
 discovery:
 conversation:

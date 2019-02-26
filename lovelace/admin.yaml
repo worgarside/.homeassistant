@@ -1,5 +1,7 @@
 title: Admin
+icon: mdi:settings
 cards:
+  - type: custom:compact-custom-header
   - type: custom:tracker-card
     title:
     trackers:
