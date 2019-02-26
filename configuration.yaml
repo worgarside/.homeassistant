@@ -39,6 +39,8 @@ recorder:
       - light.hue_color_lamp_1
       - sun.sun
       - camera.prusa_i3_mk3
+      - persistent_notification.homeassistant_check_config
+      - sensor.custom_component_tracker
 
 tts:
   - platform: google

@@ -51,7 +51,7 @@ class DatabaseRowCountSensor(Entity):
 
     @property
     def name(self):
-        return 'DB Size'
+        return 'DB Length'
 
     @property
     def state(self):
