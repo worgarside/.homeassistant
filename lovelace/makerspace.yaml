@@ -2,7 +2,7 @@ title: Makerspace
 icon: mdi:printer-3d
 panel: true
 cards:
-  - type: custom:compact-custom-header
+#  - type: custom:compact-custom-header
   - type: horizontal-stack
     cards:
       - type: vertical-stack

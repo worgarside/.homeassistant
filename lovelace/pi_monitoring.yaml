@@ -1,5 +1,5 @@
 title: Pi Monitoring
-icon: mdi:raspberry-pi
+icon: mdi:raspberrypi
 panel: true
 cards:
   - type: vertical-stack
