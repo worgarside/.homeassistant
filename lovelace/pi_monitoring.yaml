@@ -1,8 +1,10 @@
 title: Pi Monitoring
+icon: mdi:raspberrypi
 panel: true
 cards:
   - type: horizontal-stack
     cards:
+      - type: custom:compact-custom-header
       - type: custom:vertical-stack-in-card
         title: HAssPi
         cards:

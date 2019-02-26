@@ -1,6 +1,8 @@
 title: Home
+icon: mdi:home
 path: default_view
 cards:
+  - type: custom:compact-custom-header
   - show_header_toggle: true
     type: entities
     title: Light
