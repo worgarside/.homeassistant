@@ -1,5 +1,6 @@
 title: Admin
 icon: mdi:settings
+panel: true
 cards:
   - type: horizontal-stack
     cards:
