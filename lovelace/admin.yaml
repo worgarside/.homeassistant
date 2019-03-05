@@ -1,40 +1,45 @@
 title: Admin
 icon: mdi:settings
 cards:
-  - type: custom:compact-custom-header
-    background_image: true
-    voice: hide
-  - type: custom:tracker-card
-    title:
-    trackers:
-      - sensor.custom_card_tracker
-      - sensor.custom_component_tracker
-      -
-  - type: custom:vertical-stack-in-card
-    title: Database Statistics
+  - type: horizontal-stack
     cards:
-      - type: custom:mini-graph-card
-        name: Row Count
-        hours_to_show: 24
-        animate: true
-        points_per_hour: 60
-        line_width: 2
-        height: 200
-        align_state: right
-        show:
-          fill: false
-        entities:
-          - entity: sensor.db_size
+    - type: custom:compact-custom-header
+      background_image: true
+      voice: hide
+    - type: custom:tracker-card
+      title:
+      trackers:
+        - sensor.custom_card_tracker
+        - sensor.custom_component_tracker
+        -
+    - type: custom:vertical-stack-in-card
+      title: Database Statistics
+      cards:
+        - type: custom:mini-graph-card
+          name: Row Count
+          hours_to_show: 24
+          lower_bound: 0
+          icon: mdi:table-row-height
+          animate: true
+          points_per_hour: 60
+          line_width: 2
+          height: 200
+          align_state: right
+          show:
+            fill: false
+          entities:
+            - entity: sensor.db_size
 
-      - type: custom:mini-graph-card
-        name: Database Size
-        hours_to_show: 24
-        animate: true
-        points_per_hour: 60
-        line_width: 2
-        height: 200
-        align_state: right
-        show:
-          fill: false
-        entities:
-          - entity: sensor.db_length
+        - type: custom:mini-graph-card
+          name: Database Size
+          icon: mdi:harddisk
+          hours_to_show: 24
+          animate: true
+          points_per_hour: 60
+          line_width: 2
+          height: 200
+          align_state: right
+          show:
+            fill: false
+          entities:
+            - entity: sensor.db_length
