@@ -19,6 +19,8 @@ cards:
             animate: true
             points_per_hour: 60
             line_width: 2
+            show:
+              fill: false
             height: 200
             align_state: right
             entities:
@@ -77,6 +79,8 @@ cards:
             animate: true
             points_per_hour: 60
             line_width: 2
+            show:
+              fill: false
             height: 200
             align_state: right
             entities:
