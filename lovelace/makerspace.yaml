@@ -182,32 +182,48 @@ cards:
             entities:
               - entity: sensor.prusa_mk3_ambient_temperature
             color_thresholds:
-              - value: 0 # 20
-                color: '#3366FF'
+              - value: 00.0 # 20.0
+                color: '#3366ff'
+              - value: 21.25
+                color: '#3d63f2'
               - value: 22.5
-                color: '#4462EA'
+                color: '#4761e6'
+              - value: 23.75
+                color: '#525ed9'
               - value: 25.0
-                color: '#555ED5'
+                color: '#5c5ccc'
+              - value: 26.25
+                color: '#6659bf'
               - value: 27.5
-                color: '#665AC0'
+                color: '#7057b2'
+              - value: 28.75
+                color: '#7a54a6'
               - value: 30.0
-                color: '#7755AA'
+                color: '#855299'
+              - value: 31.25
+                color: '#8f4f8c'
               - value: 32.5
-                color: '#885195'
+                color: '#994c80'
+              - value: 33.75
+                color: '#a34a73'
               - value: 35.0
-                color: '#994D80'
+                color: '#ad4766'
+              - value: 36.25
+                color: '#b84559'
               - value: 37.5
-                color: '#AA496B'
+                color: '#c2424d'
+              - value: 38.75
+                color: '#cc4040'
               - value: 40.0
-                color: '#BB4455'
+                color: '#d63d33'
+              - value: 41.25
+                color: '#e03b26'
               - value: 42.5
-                color: '#CC4040'
+                color: '#eb3819'
+              - value: 43.75
+                color: '#f5360d'
               - value: 45.0
-                color: '#DD3C2B'
-              - value: 47.5
-                color: '#EE3715'
-              - value: 50.0
-                color: '#FF3300'
+                color: '#ff3300'
 
           - type: custom:mini-graph-card
             name: Humidity
