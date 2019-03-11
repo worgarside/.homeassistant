@@ -136,6 +136,8 @@ cards:
           - type: custom:mini-graph-card
             name: Print Job Completion
             icon: mdi:percent
+            lower_bound: 0
+            upper_bound: 100
             hours_to_show: 3
             animate: true
             points_per_hour: 60

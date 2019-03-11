@@ -57,4 +57,4 @@ cards:
           show:
             fill: false
           entities:
-            - entity: sensor.uptime
+            - entity: sensor.time_online
