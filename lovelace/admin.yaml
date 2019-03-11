@@ -12,17 +12,17 @@ cards:
       trackers:
         - sensor.custom_card_tracker
         - sensor.custom_component_tracker
-        -
+
     - type: custom:vertical-stack-in-card
       title: Database Statistics
       cards:
         - type: custom:mini-graph-card
           name: Row Count
-          hours_to_show: 24
+          hours_to_show: 168
           lower_bound: 0
           icon: mdi:table-row-height
           animate: true
-          points_per_hour: 60
+          points_per_hour: 30
           line_width: 2
           height: 200
           align_state: right
@@ -34,9 +34,9 @@ cards:
         - type: custom:mini-graph-card
           name: Database Size
           icon: mdi:harddisk
-          hours_to_show: 24
+          hours_to_show: 168
           animate: true
-          points_per_hour: 60
+          points_per_hour: 30
           line_width: 2
           height: 200
           align_state: right
@@ -44,3 +44,17 @@ cards:
             fill: false
           entities:
             - entity: sensor.db_length
+
+        - type: custom:mini-graph-card
+          name: HAss Uptime
+          icon: mdi:timer
+          hours_to_show: 168
+          animate: true
+          points_per_hour: 30
+          line_width: 2
+          height: 200
+          align_state: right
+          show:
+            fill: false
+          entities:
+            - entity: sensor.uptime
