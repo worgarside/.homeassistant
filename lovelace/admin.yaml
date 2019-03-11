@@ -22,7 +22,7 @@ cards:
           lower_bound: 0
           icon: mdi:table-row-height
           animate: true
-          points_per_hour: 30
+          points_per_hour: 5
           line_width: 2
           height: 200
           align_state: right
@@ -36,7 +36,7 @@ cards:
           icon: mdi:harddisk
           hours_to_show: 168
           animate: true
-          points_per_hour: 30
+          points_per_hour: 5
           line_width: 2
           height: 200
           align_state: right
@@ -50,7 +50,7 @@ cards:
           icon: mdi:timer
           hours_to_show: 168
           animate: true
-          points_per_hour: 30
+          points_per_hour: 5
           line_width: 2
           height: 200
           align_state: right
