@@ -13,7 +13,7 @@ cards:
           - type: custom:mini-graph-card
             name: Hot End Extruder
             icon: mdi:fountain-pen-tip
-            hours_to_show: 24
+            hours_to_show: 12
             lower_bound: 0
             upper_bound: 260
             animate: true
@@ -73,7 +73,7 @@ cards:
           - type: custom:mini-graph-card
             name: Printer Bed
             icon: mdi:grid
-            hours_to_show: 24
+            hours_to_show: 12
             lower_bound: 0
             upper_bound: 100
             animate: true
@@ -130,46 +130,46 @@ cards:
               - value: 100.0
                 color: '#ff3300'
 
-      - type: vertical-stack
+      - type: custom:vertical-stack-in-card
+        title: Print Progress
         cards:
-          - type: custom:bignumber-card
-            title: Current Job Completion Status
-            entity: sensor.prusa_i3_mk3_job_percentage
-            scale: 30px
-            from: left
-            min: 0
-            max: 100
-            severity:
-              - value: 20
-                style: 'var(--label-badge-red)'
-              - value: 40
-                style: 'var(--label-badge-yellow)'
-              - value: 70
-                style: 'var(--label-badge-green)'
-
-          - type: picture-entity
-            entity: camera.prusa_i3_mk3
-            name: Prusa i3 Mk3 Live Feed
-
-          - type: glance
-            show_header_toggle: false
-            column_width: calc(100% / 3)
+          - type: custom:mini-graph-card
+            name: Print Job Completion
+            icon: mdi:percent
+            hours_to_show: 3
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
             entities:
-              - entity: binary_sensor.prusa_i3_mk3_printing
-                name: Printing Status
-                icon: mdi:printer-wireless
-              - entity: binary_sensor.prusa_i3_mk3_printing_error
-                name:  Error State
-                icon: mdi:printer-alert
-              - entity: sensor.prusa_i3_mk3_current_state
-                name: Current Status
+              - entity: sensor.prusa_i3_mk3_job_percentage
+
+          - type: custom:mini-graph-card
+            name: Print Job Timings
+            icon: mdi:timer-sand
+            hours_to_show: 12
+            animate: true
+            points_per_hour: 30
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_i3_mk3_time_elapsed
+              - entity: sensor.prusa_i3_mk3_time_remaining
+
+
 
       - type: custom:vertical-stack-in-card
         title: Ambient Conditions
         cards:
           - type: custom:mini-graph-card
             name: Temperature
-            hours_to_show: 24
+            hours_to_show: 12
             lower_bound: 20
             upper_bound: 40
             animate: true
@@ -227,7 +227,7 @@ cards:
 
           - type: custom:mini-graph-card
             name: Humidity
-            hours_to_show: 24
+            hours_to_show: 12
             lower_bound: 25
             upper_bound: 60
             animate: true
