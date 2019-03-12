@@ -16,7 +16,7 @@ resources:
   - url: /customcards/compact-custom-header.js?v=0.0.1
     type: module
 
-background: center / cover no-repeat url("/local/light_bg_2.jpg") fixed
+background: center / cover no-repeat url("/local/light_bg_3.png") fixed
 
 views:
   - !include lovelace/home.yaml
