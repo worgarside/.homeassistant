@@ -5,74 +5,173 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:compact-custom-header
-      - type: vertical-stack
+        background_image: true
+        voice: hide
+      - type: custom:vertical-stack-in-card
+        title: Printer Temperatures
         cards:
-          - type: custom:dual-gauge-card
-            title: Hot End Temp
-            min: 0
-            max: 260
-            inner:
-              entity: sensor.prusa_i3_mk3_actual_tool0_temp
-              unit: °C
-              label: Actual
-            outer:
-              entity: sensor.prusa_i3_mk3_target_tool0_temp
-              unit: °C
-              label: Target
-
-          - type: custom:dual-gauge-card
-            title: Bed Temp
-            min: 0
-            max: 100
-            inner:
-              entity: sensor.prusa_i3_mk3_actual_bed_temp
-              unit: °C
-              label: Actual
-            outer:
-              entity: sensor.prusa_i3_mk3_target_bed_temp
-              unit: °C
-              label: Target
-
-      - type: vertical-stack
-        cards:
-          - type: custom:bignumber-card
-            title: Current Job Completion Status
-            entity: sensor.prusa_i3_mk3_job_percentage
-            scale: 30px
-            from: left
-            min: 0
-            max: 100
-            severity:
-              - value: 20
-                style: 'var(--label-badge-red)'
-              - value: 40
-                style: 'var(--label-badge-yellow)'
-              - value: 70
-                style: 'var(--label-badge-green)'
-
-          - type: picture-entity
-            entity: camera.prusa_i3_mk3
-            name: Prusa i3 Mk3 Live Feed
-
-          - type: glance
-            show_header_toggle: false
-            column_width: calc(100% / 3)
+          - type: custom:mini-graph-card
+            name: Hot End Extruder
+            icon: mdi:fountain-pen-tip
+            hours_to_show: 12
+            lower_bound: 0
+            upper_bound: 260
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            show:
+              fill: false
+            height: 200
+            align_state: right
             entities:
-              - entity: binary_sensor.prusa_i3_mk3_printing
-                name: Printing Status
-                icon: mdi:printer-wireless
-              - entity: binary_sensor.prusa_i3_mk3_printing_error
-                name:  Error State
-                icon: mdi:printer-alert
-              - entity: sensor.prusa_i3_mk3_current_state
-                name: Current Status
+              - entity: sensor.prusa_i3_mk3_actual_tool0_temp
+              - entity: sensor.prusa_i3_mk3_target_tool0_temp
+            color_thresholds:
+              - value: 0.0
+                color: '#3366ff'
+              - value: 13.0
+                color: '#3d63f2'
+              - value: 26.0
+                color: '#4761e6'
+              - value: 39.0
+                color: '#525ed9'
+              - value: 52.0
+                color: '#5c5ccc'
+              - value: 65.0
+                color: '#6659bf'
+              - value: 78.0
+                color: '#7057b2'
+              - value: 91.0
+                color: '#7a54a6'
+              - value: 104.0
+                color: '#855299'
+              - value: 117.0
+                color: '#8f4f8c'
+              - value: 130.0
+                color: '#994c80'
+              - value: 143.0
+                color: '#a34a73'
+              - value: 156.0
+                color: '#ad4766'
+              - value: 169.0
+                color: '#b84559'
+              - value: 182.0
+                color: '#c2424d'
+              - value: 195.0
+                color: '#cc4040'
+              - value: 208.0
+                color: '#d63d33'
+              - value: 221.0
+                color: '#e03b26'
+              - value: 234.0
+                color: '#eb3819'
+              - value: 247.0
+                color: '#f5360d'
+              - value: 260.0
+                color: '#ff3300'
+
+          - type: custom:mini-graph-card
+            name: Printer Bed
+            icon: mdi:grid
+            hours_to_show: 12
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            show:
+              fill: false
+            height: 200
+            align_state: right
+            entities:
+              - entity: sensor.prusa_i3_mk3_actual_bed_temp
+              - entity: sensor.prusa_i3_mk3_target_bed_temp
+            color_thresholds:
+              - value: 0.0
+                color: '#3366ff'
+              - value: 5.0
+                color: '#3d63f2'
+              - value: 10.0
+                color: '#4761e6'
+              - value: 15.0
+                color: '#525ed9'
+              - value: 20.0
+                color: '#5c5ccc'
+              - value: 25.0
+                color: '#6659bf'
+              - value: 30.0
+                color: '#7057b2'
+              - value: 35.0
+                color: '#7a54a6'
+              - value: 40.0
+                color: '#855299'
+              - value: 45.0
+                color: '#8f4f8c'
+              - value: 50.0
+                color: '#994c80'
+              - value: 55.0
+                color: '#a34a73'
+              - value: 60.0
+                color: '#ad4766'
+              - value: 65.0
+                color: '#b84559'
+              - value: 70.0
+                color: '#c2424d'
+              - value: 75.0
+                color: '#cc4040'
+              - value: 80.0
+                color: '#d63d33'
+              - value: 85.0
+                color: '#e03b26'
+              - value: 90.0
+                color: '#eb3819'
+              - value: 95.0
+                color: '#f5360d'
+              - value: 100.0
+                color: '#ff3300'
 
       - type: custom:vertical-stack-in-card
-        title: 'Ambient Conditions'
+        title: Print Progress
+        cards:
+          - type: custom:mini-graph-card
+            name: Print Job Completion
+            icon: mdi:percent
+            lower_bound: 0
+            upper_bound: 100
+            hours_to_show: 3
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_i3_mk3_job_percentage
+
+          - type: custom:mini-graph-card
+            name: Print Job Timings
+            icon: mdi:timer-sand
+            hours_to_show: 12
+            animate: true
+            points_per_hour: 30
+            line_width: 2
+            height: 200
+            align_state: right
+            show:
+              fill: false
+            entities:
+              - entity: sensor.prusa_i3_mk3_time_elapsed
+              - entity: sensor.prusa_i3_mk3_time_remaining
+
+
+
+      - type: custom:vertical-stack-in-card
+        title: Ambient Conditions
         cards:
           - type: custom:mini-graph-card
             name: Temperature
-            hours_to_show: 24
+            hours_to_show: 12
             lower_bound: 20
             upper_bound: 40
             animate: true
@@ -85,38 +184,54 @@ cards:
             entities:
               - entity: sensor.prusa_mk3_ambient_temperature
             color_thresholds:
-              - value: 0 # 20
-                color: '#3366FF'
+              - value: 00.0 # 20.0
+                color: '#3366ff'
+              - value: 21.25
+                color: '#3d63f2'
               - value: 22.5
-                color: '#4462EA'
+                color: '#4761e6'
+              - value: 23.75
+                color: '#525ed9'
               - value: 25.0
-                color: '#555ED5'
+                color: '#5c5ccc'
+              - value: 26.25
+                color: '#6659bf'
               - value: 27.5
-                color: '#665AC0'
+                color: '#7057b2'
+              - value: 28.75
+                color: '#7a54a6'
               - value: 30.0
-                color: '#7755AA'
+                color: '#855299'
+              - value: 31.25
+                color: '#8f4f8c'
               - value: 32.5
-                color: '#885195'
+                color: '#994c80'
+              - value: 33.75
+                color: '#a34a73'
               - value: 35.0
-                color: '#994D80'
+                color: '#ad4766'
+              - value: 36.25
+                color: '#b84559'
               - value: 37.5
-                color: '#AA496B'
+                color: '#c2424d'
+              - value: 38.75
+                color: '#cc4040'
               - value: 40.0
-                color: '#BB4455'
+                color: '#d63d33'
+              - value: 41.25
+                color: '#e03b26'
               - value: 42.5
-                color: '#CC4040'
+                color: '#eb3819'
+              - value: 43.75
+                color: '#f5360d'
               - value: 45.0
-                color: '#DD3C2B'
-              - value: 47.5
-                color: '#EE3715'
-              - value: 50.0
-                color: '#FF3300'
+                color: '#ff3300'
 
           - type: custom:mini-graph-card
             name: Humidity
-            hours_to_show: 24
-            lower_bound: 30
-            upper_bound: 70
+            hours_to_show: 12
+            lower_bound: 25
+            upper_bound: 60
             animate: true
             points_per_hour: 60
             line_width: 2
@@ -128,15 +243,45 @@ cards:
             entities:
               - entity: sensor.prusa_mk3_ambient_humidity
             color_thresholds:
-              - value: 0 # 30
-                color: '#38D138'
-              - value: 50
-                color: '#57B238'
-              - value: 52.5
-                color: '#759338'
-              - value: 55
-                color: '#947537'
-              - value: 57.5
-                color: '#B25637'
-              - value: 60
-                color: '#D13737'
+              - value: 25.0
+                color: '#43e6fd'
+              - value: 26.75
+                color: '#37ebea'
+              - value: 28.5
+                color: '#2bf0d7'
+              - value: 30.25
+                color: '#1ef5c4'
+              - value: 32.0
+                color: '#12fab1'
+              - value: 33.75
+                color: '#06ff9e'
+              - value: 35.5
+                color: '#38ff8e'
+              - value: 37.25
+                color: '#6aff7f'
+              - value: 39.0
+                color: '#9bff6f'
+              - value: 40.75
+                color: '#cdff60'
+              - value: 42.5
+                color: '#ffff50'
+              - value: 44.25
+                color: '#ffeb4e'
+              - value: 46.0
+                color: '#ffd64c'
+              - value: 47.75
+                color: '#ffc24a'
+              - value: 49.5
+                color: '#ffad48'
+              - value: 51.25
+                color: '#ff9946'
+              - value: 53.0
+                color: '#ff8538'
+              - value: 54.75
+                color: '#ff702a'
+              - value: 56.5
+                color: '#ff5c1c'
+              - value: 58.25
+                color: '#ff470e'
+              - value: 60.0
+                color: '#ff3300'

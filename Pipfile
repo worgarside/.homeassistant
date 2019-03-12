@@ -13,6 +13,7 @@ locationsharinglib = "*"
 myfitnesspal = "*"
 python-dotenv = "*"
 "psycopg2-binary" = "*"
+wg-utilities = "*"
 
 [dev-packages]
 

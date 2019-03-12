@@ -7,16 +7,16 @@ resources:
     type: js
   - url: /local/dual-gauge-card.js?v=1?track=true
     type: js
-  - url: /local/mini-graph-card-bundle.js?v=0.2.4
+  - url: /local/mini-graph-card-bundle.js
     type: module
-  - url: /local/tracker-card.js?v=0
+  - url: /local/tracker-card.js
     type: js
   - type: css
     url: 'https://fonts.googleapis.com/css?family=Raleway'
-  - url: /local/compact-custom-header.js?v=0.0.1?track=true
+  - url: /local/compact-custom-header.js?v=0.0.1
     type: module
 
-background: center / cover no-repeat url("/local/bg-clear.jpeg") fixed
+background: center / cover no-repeat url("/local/light_bg_3.jpg") fixed
 
 views:
   - !include lovelace/home.yaml

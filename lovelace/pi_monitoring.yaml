@@ -5,6 +5,8 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:compact-custom-header
+        background_image: true
+        voice: hide
       - type: custom:vertical-stack-in-card
         title: HAssPi
         cards:
