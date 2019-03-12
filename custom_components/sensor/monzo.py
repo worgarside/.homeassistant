@@ -51,7 +51,7 @@ def authorize(refresh=False):
         if not res.status_code == 200:
             log('Unable to refresh Monzo API token')
             # TODO replace with ex-backoff
-            exit()
+            raise PermissionError
 
         secrets = res.json()
 
@@ -67,8 +67,6 @@ def _get_balance():
     try:
         h = {'Authorization': 'Bearer {}'.format(authorize())}
         res = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
-        if not res.status_code == 200:
-            raise PermissionError
     except PermissionError:
         h = {'Authorization': 'Bearer {}'.format(authorize(refresh=True))}
         res = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
