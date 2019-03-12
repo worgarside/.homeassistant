@@ -1,22 +1,22 @@
 title: 15 Robins Court
 
 resources:
-  - url: /customcards/bignumber-card.js?v=1
+  - url: /local/bignumber-card.js?v=1
     type: js
-  - url: /customcards/vertical-stack-in-card.js?v=0.1.1
+  - url: /local/vertical-stack-in-card.js?v=0.1.1
     type: js
-  - url: /customcards/dual-gauge-card.js?v=1?track=true
+  - url: /local/dual-gauge-card.js?v=1?track=true
     type: js
-  - url: /customcards/mini-graph-card-bundle.js
+  - url: /local/mini-graph-card-bundle.js
     type: module
-  - url: /customcards/tracker-card.js
+  - url: /local/tracker-card.js
     type: js
   - type: css
     url: 'https://fonts.googleapis.com/css?family=Raleway'
-  - url: /customcards/compact-custom-header.js?v=0.0.1
+  - url: /local/compact-custom-header.js?v=0.0.1
     type: module
 
-background: center / cover no-repeat url("/local/light_bg_3.png") fixed
+background: center / cover no-repeat url("/local/light_bg_3.jpg") fixed
 
 views:
   - !include lovelace/home.yaml
