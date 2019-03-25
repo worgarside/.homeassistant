@@ -146,7 +146,7 @@ class CumulativeStepCountSensor(Entity):
     def __init__(self):
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._pkl_file_path = '{}custom_components/sensor/vars/cum_step_count.pkl'.format(HASS_DIR)
+        self._pkl_file_path = '{}cum_step_count.pkl'.format(SECRET_FILES_DIR)
 
     @property
     def name(self):
