@@ -61,17 +61,18 @@ def authorize(refresh=False):
     return secrets['access_token']
 
 
-def _get_balance():
+def _get_balance(key):
     from requests import get
 
     h = {'Authorization': 'Bearer {}'.format(authorize())}
     json = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
 
-    if 'code' in json and json['code'] == 'unauthorized.bad_access_token.expired':
+    try:
+        return json[key]
+    except KeyError:
         h = {'Authorization': 'Bearer {}'.format(authorize(refresh=True))}
         json = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
-
-    return json
+        return json[key]
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -96,7 +97,7 @@ class MonzoCurrentAccountBalanceSensor(Entity):
 
     @Throttle(timedelta(minutes=10))
     def update(self):
-        self._state = round(_get_balance()['balance'] / 100, 2)
+        self._state = round(_get_balance('balance') / 100, 2)
 
 
 class MonzoTotalBalanceSensor(Entity):
@@ -117,4 +118,4 @@ class MonzoTotalBalanceSensor(Entity):
 
     @Throttle(timedelta(minutes=10))
     def update(self):
-        self._state = round(_get_balance()['total_balance'] / 100, 2)
+        self._state = round(_get_balance('total_balance') / 100, 2)
