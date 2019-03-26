@@ -20,19 +20,24 @@ CREDENTIALS_FILE = '{}monzo_client_secrets.json'.format(SECRET_FILES_DIR)
 PSQL_CREDS = {
     'db_user': getenv('HASS_DB_USER'),
     'db_password': getenv('HASS_DB_PASSWORD'),
-    'db_host': getenv('HASSPI_LOCAL_IP'),
+    'db_host': getenv('DATAPI_LOCAL_IP'),
     'db_name': getenv('SECONDARY_DB_NAME')
 }
 
 
 def authorize(refresh=False):
     from json import load, dump
+
+    _log_desc = 'Monzo API credential refresh'
+
     with open(CREDENTIALS_FILE) as f:
         secrets = load(f)
 
     if refresh:
         from requests import post
-        log(db_creds=PSQL_CREDS, description='Refreshing Monzo API credentials')
+        log(db_creds=PSQL_CREDS, description=_log_desc,
+            script='/'.join(path.abspath(__file__).split('/')[-2:]),
+            text_content='Starting refresh')
 
         credentials = {
             'grant_type': 'refresh_token',
@@ -45,8 +50,10 @@ def authorize(refresh=False):
 
         if not res.status_code == 200:
             log(db_creds=PSQL_CREDS,
-                description='Unable to refresh Monzo API credentials',
-                json_content={'status_code': res.status_code, 'reason': res.reason}
+                description=_log_desc,
+                text_content='Refresh failed',
+                json_content={'status_code': res.status_code, 'reason': res.reason},
+                script='/'.join(path.abspath(__file__).split('/')[-2:]),
                 )
             # TODO replace with ex-backoff
             raise OSError(str(res.json()))
@@ -55,7 +62,12 @@ def authorize(refresh=False):
 
         with open(CREDENTIALS_FILE, 'w') as f:
             dump(secrets, f)
-            log(db_creds=PSQL_CREDS, description='Monzo API credentials refreshed successfully')
+            log(
+                db_creds=PSQL_CREDS,
+                description=_log_desc,
+                text_content='Refresh successful',
+                script='/'.join(path.abspath(__file__).split('/')[-2:])
+            )
 
     return secrets['access_token']
 
