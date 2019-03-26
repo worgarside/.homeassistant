@@ -1,18 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from os import getenv, path
 
 from dotenv import load_dotenv
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-from wg_utilities.references.constants import HOMEASSISTANT
 from wg_utilities.helpers.functions import get_proj_dirs, log
+from wg_utilities.references.constants import HOMEASSISTANT
 
 REQUIREMENTS = ['wg-utilities', 'python-dotenv', 'requests']
 
-PROJECT_DIR, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
+_, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
 ENDPOINT = 'https://api.monzo.com/'
 
-load_dotenv('{}.env'.format(SECRET_FILES_DIR))
+load_dotenv(ENV_FILE)
 
 MONZO_CLIENT_SECRET = getenv('MONZO_CLIENT_SECRET')
 MONZO_ACCT_ID = getenv('MONZO_ACCOUNT_ID')
@@ -35,7 +35,8 @@ def authorize(refresh=False):
 
     if refresh:
         from requests import post
-        log(db_creds=PSQL_CREDS, description=_log_desc,
+        log(db_creds=PSQL_CREDS,
+            description=_log_desc,
             script='/'.join(path.abspath(__file__).split('/')[-2:]),
             text_content='Starting refresh')
 
@@ -101,7 +102,7 @@ class MonzoCurrentAccountBalanceSensor(Entity):
     def unit_of_measurement(self):
         return 'GBP'
 
-    # @Throttle(timedelta(minutes=10))
+    @Throttle(timedelta(minutes=5))
     def update(self):
         try:
             self._state = round(_get_balance('balance') / 100, 2)
@@ -125,7 +126,7 @@ class MonzoTotalBalanceSensor(Entity):
     def unit_of_measurement(self):
         return 'GBP'
 
-    # @Throttle(timedelta(minutes=10))
+    @Throttle(timedelta(minutes=5))
     def update(self):
         try:
             self._state = round(_get_balance('total_balance') / 100, 2)
