@@ -55,8 +55,9 @@ frontend:
   themes: !include lovelace/themes.yaml
 
 
-#http:
-#  api_password: !secret appdaemon_token
+http:
+  base_url: !secret base_url
+  cors_allowed_origins: !secret cors_allowed_origins
 
 # ==================== OctoPrint ==================== #
 
