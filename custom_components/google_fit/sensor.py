@@ -1,18 +1,26 @@
 from datetime import datetime, timedelta
-from os import path
+from os import path, getenv
 from time import mktime
 
 from homeassistant.const import MASS_KILOGRAMS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+from wg_utilities.references.constants import HOMEASSISTANT
+from wg_utilities.helpers.functions import get_proj_dirs, log
+from dotenv import load_dotenv
 
-REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client']
+REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client', 'python-dotenv']
 
-HOME_ASSISTANT = '.homeassistant'
-DIRNAME, _ = path.split(path.abspath(__file__))
-HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
-SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
-LOG_DIRECTORY = '{}logs/'.format(HASS_DIR)
+_, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
+
+load_dotenv(ENV_FILE)
+
+PSQL_CREDS = {
+    'db_user': getenv('HASS_DB_USER'),
+    'db_password': getenv('HASS_DB_PASSWORD'),
+    'db_host': getenv('DATAPI_LOCAL_IP'),
+    'db_name': getenv('SECONDARY_DB_NAME')
+}
 
 CLIENT_SECRETS_FILE = '{}google_client_secrets.json'.format(SECRET_FILES_DIR)
 CREDENTIALS_FILE = '{}google_credentials.json'.format(SECRET_FILES_DIR)
@@ -28,18 +36,6 @@ SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read',
 MAX_RETRIES = 5
 
 
-def log(m='', log_dir=LOG_DIRECTORY, file_prefix='hass_activity', newline=False):
-    n = datetime.now()
-    with open(
-            '{}{}_{}-{:02d}-{:02d}.log'.format(log_dir, file_prefix, n.year, n.month, n.day),
-            'a') as f:
-        if newline:
-            f.write('\n')
-        f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
-                .format(n.year, n.month, n.day, n.hour, n.minute, n.second, m)
-                )
-
-
 def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([DailyStepCountSensor(), CumulativeStepCountSensor(), BodyWeightSensor(), CalorieExpenditureSensor()])
 
@@ -52,7 +48,7 @@ def _get_client():
     from ssl import SSLEOFError
     from socket import timeout
 
-    with open(CREDENTIALS_FILE, 'r') as f:
+    with open(CREDENTIALS_FILE) as f:
         credentials_dict = load(f)
 
     updated_credentials = Credentials(
@@ -139,14 +135,13 @@ class DailyStepCountSensor(Entity):
                 step_count += point['value'][0]['intVal']
 
         self._state = step_count
-        log('Google Fit: Daily Step Count - {}'.format(self._state))
 
 
 class CumulativeStepCountSensor(Entity):
     def __init__(self):
         self._state = None
         self._data_source = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'
-        self._pkl_file_path = '{}custom_components/sensor/vars/cum_step_count.pkl'.format(HASS_DIR)
+        self._pkl_file_path = '{}cum_step_count.pkl'.format(SECRET_FILES_DIR)
 
     @property
     def name(self):
@@ -179,7 +174,6 @@ class CumulativeStepCountSensor(Entity):
             dump([cum_step_count, recent_cum_start_time], f)
 
         self._state = cum_step_count
-        log('Google Fit: Cumulative Step Count - {}'.format(self._state))
 
 
 class BodyWeightSensor(Entity):
@@ -209,7 +203,6 @@ class BodyWeightSensor(Entity):
 
         if len(combined_datapoints) == 1:
             self._state = round(combined_datapoints[0]['value'][0]['fpVal'], 2)
-            log('Google Fit: Body Weight - {}'.format(self._state))
         elif len(combined_datapoints) > 1:
             max_time = 0
             weight = 0
@@ -218,7 +211,6 @@ class BodyWeightSensor(Entity):
                     max_time = float(point['endTimeNanos'])
                     weight = point['value'][0]['fpVal']
             self._state = round(weight, 2) if not weight == 0 else self._state
-            log('Google Fit: Body Weight - {}'.format(self._state))
 
 
 class CalorieExpenditureSensor(Entity):
@@ -248,4 +240,3 @@ class CalorieExpenditureSensor(Entity):
                 cal_count += point['value'][0]['fpVal']
 
         self._state = int(cal_count)
-        log('Google Fit: Calories Expended - {}'.format(self._state))

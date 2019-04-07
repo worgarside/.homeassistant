@@ -1,43 +1,44 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from os import getenv, path
 
 from dotenv import load_dotenv
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+from wg_utilities.helpers.functions import get_proj_dirs, log
 from wg_utilities.references.constants import HOMEASSISTANT
-from wg_utilities.helpers.functions import get_proj_dirs
 
 REQUIREMENTS = ['wg-utilities', 'python-dotenv', 'requests']
 
-PROJECT_DIR, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
-LOG_DIRECTORY = '{}logs/'.format(PROJECT_DIR)
+_, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
 ENDPOINT = 'https://api.monzo.com/'
 
-load_dotenv('{}.env'.format(SECRET_FILES_DIR))
+load_dotenv(ENV_FILE)
 
 MONZO_CLIENT_SECRET = getenv('MONZO_CLIENT_SECRET')
 MONZO_ACCT_ID = getenv('MONZO_ACCOUNT_ID')
 CREDENTIALS_FILE = '{}monzo_client_secrets.json'.format(SECRET_FILES_DIR)
-
-
-def log(m='', newline=False):
-    now = datetime.now()
-
-    with open('{}hass_activity_{}-{:02d}-{:02d}.log'.format(LOG_DIRECTORY, now.year, now.month, now.day), 'a') as f:
-        if newline:
-            f.write('\n')
-        f.write('\n[{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}]: {}'
-                .format(now.year, now.month, now.day, now.hour, now.minute, now.second, m)
-                )
+PSQL_CREDS = {
+    'db_user': getenv('HASS_DB_USER'),
+    'db_password': getenv('HASS_DB_PASSWORD'),
+    'db_host': getenv('DATAPI_LOCAL_IP'),
+    'db_name': getenv('SECONDARY_DB_NAME')
+}
 
 
 def authorize(refresh=False):
     from json import load, dump
+
+    _log_desc = 'Monzo API credential refresh'
+
     with open(CREDENTIALS_FILE) as f:
         secrets = load(f)
 
     if refresh:
         from requests import post
+        log(db_creds=PSQL_CREDS,
+            description=_log_desc,
+            script='/'.join(path.abspath(__file__).split('/')[-2:]),
+            text_content='Starting refresh')
 
         credentials = {
             'grant_type': 'refresh_token',
@@ -49,7 +50,12 @@ def authorize(refresh=False):
         res = post('https://api.monzo.com/oauth2/token', data=credentials)
 
         if not res.status_code == 200:
-            log('Unable to refresh Monzo API token')
+            log(db_creds=PSQL_CREDS,
+                description=_log_desc,
+                text_content='Refresh failed',
+                json_content={'status_code': res.status_code, 'reason': res.reason},
+                script='/'.join(path.abspath(__file__).split('/')[-2:]),
+                )
             # TODO replace with ex-backoff
             raise OSError(str(res.json()))
 
@@ -57,21 +63,23 @@ def authorize(refresh=False):
 
         with open(CREDENTIALS_FILE, 'w') as f:
             dump(secrets, f)
+            log(
+                db_creds=PSQL_CREDS,
+                description=_log_desc,
+                text_content='Refresh successful',
+                script='/'.join(path.abspath(__file__).split('/')[-2:])
+            )
 
     return secrets['access_token']
 
 
-def _get_balance():
+def _get_balance(key, refresh_auth=False):
     from requests import get
 
-    h = {'Authorization': 'Bearer {}'.format(authorize())}
+    h = {'Authorization': 'Bearer {}'.format(authorize(refresh=refresh_auth))}
     json = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
 
-    if 'code' in json and json['code'] == 'unauthorized.bad_access_token.expired':
-        h = {'Authorization': 'Bearer {}'.format(authorize(refresh=True))}
-        json = get('{}balance?account_id={}'.format(ENDPOINT, MONZO_ACCT_ID), headers=h).json()
-
-    return json
+    return json[key]
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -94,9 +102,12 @@ class MonzoCurrentAccountBalanceSensor(Entity):
     def unit_of_measurement(self):
         return 'GBP'
 
-    @Throttle(timedelta(minutes=10))
+    @Throttle(timedelta(minutes=5))
     def update(self):
-        self._state = round(_get_balance()['balance'] / 100, 2)
+        try:
+            self._state = round(_get_balance('balance') / 100, 2)
+        except KeyError:
+            self._state = round(_get_balance('balance', refresh_auth=True) / 100, 2)
 
 
 class MonzoTotalBalanceSensor(Entity):
@@ -115,6 +126,9 @@ class MonzoTotalBalanceSensor(Entity):
     def unit_of_measurement(self):
         return 'GBP'
 
-    @Throttle(timedelta(minutes=10))
+    @Throttle(timedelta(minutes=5))
     def update(self):
-        self._state = round(_get_balance()['total_balance'] / 100, 2)
+        try:
+            self._state = round(_get_balance('total_balance') / 100, 2)
+        except KeyError:
+            self._state = round(_get_balance('total_balance', refresh_auth=True) / 100, 2)
