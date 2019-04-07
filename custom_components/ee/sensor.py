@@ -1,16 +1,14 @@
 from os import getenv, path
-
+from wg_utilities.references.constants import HOMEASSISTANT, BS4_PARSER
 from dotenv import load_dotenv
 from homeassistant.helpers.entity import Entity
+from wg_utilities.helpers.functions import get_proj_dirs
+from wg_utilities.services.services import pb_notify
 
-REQUIREMENTS = ['beautifulsoup4', 'python-dotenv']
+REQUIREMENTS = ['beautifulsoup4', 'python-dotenv', 'wg-utilities']
 
-HOME_ASSISTANT = '.homeassistant'
-DIRNAME, _ = path.split(path.abspath(__file__))
-HASS_DIR = DIRNAME[:DIRNAME.find(HOME_ASSISTANT) + len(HOME_ASSISTANT)] + '/'
-SECRET_FILES_DIR = '{}secret_files/'.format(HASS_DIR)
-
-load_dotenv('{}.env'.format(SECRET_FILES_DIR))
+_, _, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
+load_dotenv(ENV_FILE)
 
 PB_API_KEY = getenv('PB_API_KEY')
 DATA_LIMIT = 200.00
@@ -25,7 +23,7 @@ def _get_allowance():
     from math import ceil
 
     res = get(EE_URL, timeout=5)
-    soup = BeautifulSoup(res.content, 'html.parser')
+    soup = BeautifulSoup(res.content, BS4_PARSER)
 
     refined_soup = soup.body.find('p', attrs={'class': 'allowance__timespan'})
 
@@ -80,7 +78,7 @@ def _get_remaining_data():
         try:
             res = get(EE_URL, timeout=5)
 
-            soup = BeautifulSoup(res.content, 'html.parser')
+            soup = BeautifulSoup(res.content, BS4_PARSER)
             for small in soup('small'):
                 small.decompose()
 
@@ -90,7 +88,7 @@ def _get_remaining_data():
             )
 
             if 'gb' not in allowance__left.lower() and 'mb' in allowance__left.lower():
-                usage = usage / 1024
+                usage /= 1024
             elif 'gb' not in allowance__left.lower() and 'mb' not in allowance__left.lower():
                 raise ValueError('Unknown allowance__left element: {}'.format(allowance__left.strip()))
 
@@ -99,24 +97,8 @@ def _get_remaining_data():
             sleep(1)
             continue
         except ValueError as e:
-            _send_notification('EE Data Savings Sensor Error', e)
+            pb_notify(t='EE Data Savings Sensor Error', m=str(e), token=PB_API_KEY)
             exit(1)
-
-
-def _send_notification(t, m):
-    from requests import post
-    post(
-        'https://api.pushbullet.com/v2/pushes',
-        headers={
-            'Access-Token': PB_API_KEY,
-            'Content-Type': 'application/json'
-        },
-        json={
-            'body': m,
-            'title': t,
-            'type': 'note'
-        }
-    )
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -192,7 +174,7 @@ class DataAllowanceSensor(Entity):
                 sleep(0.5)
                 continue
             except ValueError as e:
-                _send_notification('EE Data Savings Sensor Error', e)
+                pb_notify(t='EE Data Savings Sensor Error', m=str(e), token=PB_API_KEY)
                 allowance = None
                 break
 
@@ -230,7 +212,7 @@ class DataSavingsSensor(Entity):
                 )
 
                 if usage > DATA_LIMIT:
-                    usage = usage / 1024
+                    usage /= 1024
 
                 usage = round(usage, 2)
                 savings = round(allowance - (DATA_LIMIT - usage), 2)
