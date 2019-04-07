@@ -136,11 +136,6 @@ class DailyStepCountSensor(Entity):
 
         self._state = step_count
 
-        log(db_creds=PSQL_CREDS,
-            description='Google Fit: daily step count',
-            script='/'.join(path.abspath(__file__).split('/')[-2:]),
-            numeric_content=step_count)
-
 
 class CumulativeStepCountSensor(Entity):
     def __init__(self):
@@ -180,11 +175,6 @@ class CumulativeStepCountSensor(Entity):
 
         self._state = cum_step_count
 
-        log(db_creds=PSQL_CREDS,
-            description='Google Fit: cumulative step count',
-            script='/'.join(path.abspath(__file__).split('/')[-2:]),
-            numeric_content=cum_step_count)
-
 
 class BodyWeightSensor(Entity):
     def __init__(self):
@@ -213,12 +203,6 @@ class BodyWeightSensor(Entity):
 
         if len(combined_datapoints) == 1:
             self._state = round(combined_datapoints[0]['value'][0]['fpVal'], 2)
-
-            log(db_creds=PSQL_CREDS,
-                description='Google Fit: body weight',
-                script='/'.join(path.abspath(__file__).split('/')[-2:]),
-                numeric_content=self._state)
-
         elif len(combined_datapoints) > 1:
             max_time = 0
             weight = 0
@@ -227,11 +211,6 @@ class BodyWeightSensor(Entity):
                     max_time = float(point['endTimeNanos'])
                     weight = point['value'][0]['fpVal']
             self._state = round(weight, 2) if not weight == 0 else self._state
-
-            log(db_creds=PSQL_CREDS,
-                description='Google Fit: body weight',
-                script='/'.join(path.abspath(__file__).split('/')[-2:]),
-                numeric_content=self._state)
 
 
 class CalorieExpenditureSensor(Entity):
@@ -261,8 +240,3 @@ class CalorieExpenditureSensor(Entity):
                 cal_count += point['value'][0]['fpVal']
 
         self._state = int(cal_count)
-
-        log(db_creds=PSQL_CREDS,
-            description='Google Fit: calories expended',
-            script='/'.join(path.abspath(__file__).split('/')[-2:]),
-            numeric_content=int(cal_count))

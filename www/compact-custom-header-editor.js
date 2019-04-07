@@ -1,5 +1,5 @@
 const LitElement = Object.getPrototypeOf(
-  customElements.get("ha-panel-lovelace")
+    customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
 const fireEvent = (node, type, detail, options) => {
@@ -26,8 +26,9 @@ const defaultConfig = {
   clock_am_pm: true,
   clock_date: false,
   disable: false,
-  background_image: false,
   main_config: false,
+  chevrons: false,
+  redirect: true,
   hide_tabs: [],
   show_tabs: []
 };
@@ -46,16 +47,16 @@ export class CompactCustomHeaderEditor extends LitElement {
 
   firstUpdated() {
     this.parentElement.parentElement.querySelector(
-      "hui-card-preview"
+        "hui-card-preview"
     ).style.display = "none";
     this.parentElement.parentElement.parentElement
-      .parentElement.style.maxWidth = "650px";
+        .parentElement.style.maxWidth = "650px";
   }
 
   render() {
     const mwc_button = customElements.get("mwc-button") ? true : false;
     const clear_cache_button = mwc_button
-      ? html`
+        ? html`
           <mwc-button
             style="margin-left:-15px"
             class="toggle-button"
@@ -63,7 +64,7 @@ export class CompactCustomHeaderEditor extends LitElement {
             >Clear CCH Cache</mwc-button
           >
         `
-      : html`
+        : html`
           <paper-button
             class="toggle-button"
             @click="${localStorage.removeItem("cchCache")}"
@@ -81,7 +82,7 @@ export class CompactCustomHeaderEditor extends LitElement {
       <h3>Exceptions:</h3>
       ${this._config.exceptions
         ? this._config.exceptions.map((exception, index) => {
-            return html`
+          return html`
               <cch-exception-editor
                 .config="${this._config}"
                 .exception="${exception}"
@@ -91,7 +92,7 @@ export class CompactCustomHeaderEditor extends LitElement {
               >
               </cch-exception-editor>
             `;
-          })
+        })
         : ""}
       <br />
       ${mwc_button
@@ -230,8 +231,8 @@ export class CompactCustomHeaderEditor extends LitElement {
 }
 
 customElements.define(
-  "compact-custom-header-editor",
-  CompactCustomHeaderEditor
+    "compact-custom-header-editor",
+    CompactCustomHeaderEditor
 );
 
 export class CchConfigEditor extends LitElement {
@@ -253,10 +254,10 @@ export class CchConfigEditor extends LitElement {
 
   get _clock() {
     return (
-      this._menu == "clock" ||
-      this._voice == "clock" ||
-      this._notifications == "clock" ||
-      this._options == "clock"
+        this._menu == "clock" ||
+        this._voice == "clock" ||
+        this._notifications == "clock" ||
+        this._options == "clock"
     );
   }
 
@@ -266,38 +267,44 @@ export class CchConfigEditor extends LitElement {
 
   get _clock_am_pm() {
     return this.config.clock_am_pm !== undefined
-      ? this.config.clock_am_pm
-      : this.defaultConfig.clock_am_pm;
+        ? this.config.clock_am_pm
+        : this.defaultConfig.clock_am_pm;
   }
 
   get _clock_date() {
     return this.config.clock_date !== undefined
-      ? this.config.clock_date
-      : this.defaultConfig.clock_date;
+        ? this.config.clock_date
+        : this.defaultConfig.clock_date;
   }
 
   get _main_config() {
     return this.config.main_config !== undefined
-      ? this.config.main_config
-      : this.defaultConfig.main_config;
+        ? this.config.main_config
+        : this.defaultConfig.main_config;
   }
 
   get _disable() {
     return this.config.disable !== undefined
-      ? this.config.disable
-      : this.defaultConfig.disable;
+        ? this.config.disable
+        : this.defaultConfig.disable;
   }
 
   get _header() {
     return this.config.header !== undefined
-      ? this.config.header
-      : this.defaultConfig.header;
+        ? this.config.header
+        : this.defaultConfig.header;
   }
 
-  get _background_image() {
-    return this.config.background_image !== undefined
-      ? this.config.background_image
-      : this.defaultConfig.background_image;
+  get _chevrons() {
+    return this.config.chevrons !== undefined
+        ? this.config.chevrons
+        : this.defaultConfig.chevrons;
+  }
+
+  get _redirect() {
+    return this.config.redirect !== undefined
+        ? this.config.redirect
+        : this.defaultConfig.redirect;
   }
 
   get _menu() {
@@ -306,20 +313,20 @@ export class CchConfigEditor extends LitElement {
 
   get _voice() {
     return this.config.voice !== undefined
-      ? this.config.voice
-      : this.defaultConfig.voice;
+        ? this.config.voice
+        : this.defaultConfig.voice;
   }
 
   get _notifications() {
     return this.config.notifications !== undefined
-      ? this.config.notifications
-      : this.defaultConfig.notifications;
+        ? this.config.notifications
+        : this.defaultConfig.notifications;
   }
 
   get _options() {
     return this.config.options !== undefined
-      ? this.config.options
-      : this.defaultConfig.options;
+        ? this.config.options
+        : this.defaultConfig.options;
   }
 
   render() {
@@ -335,7 +342,7 @@ export class CchConfigEditor extends LitElement {
           `
         : ""}
       ${!this.exception &&
-      !this._main_config
+    !this._main_config
         ? html`
             <div class="alert">
               <iron-icon icon="hass:alert"></iron-icon>
@@ -346,10 +353,21 @@ export class CchConfigEditor extends LitElement {
         : ""}
       ${this.renderStyle()}
       <div class="side-by-side">
+        ${!this.exception
+        ? html`
+              <paper-toggle-button
+                ?checked="${this._main_config !== false}"
+                .configValue="${"main_config"}"
+                @change="${this._valueChanged}"
+              >
+                Main Config
+              </paper-toggle-button>
+            `
+        : ""}
         <paper-toggle-button
           class="${this.exception && this.config.disable === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
           ?checked="${this._disable !== false}"
           .configValue="${"disable"}"
           @change="${this._valueChanged}"
@@ -358,40 +376,42 @@ export class CchConfigEditor extends LitElement {
         </paper-toggle-button>
         <paper-toggle-button
           class="${this.exception && this.config.header === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
           ?checked="${this._header !== false}"
           .configValue="${"header"}"
           @change="${this._valueChanged}"
         >
           Display Header
         </paper-toggle-button>
-        ${!this.exception
-          ? html`
-              <paper-toggle-button
-                ?checked="${this._main_config !== false}"
-                .configValue="${"main_config"}"
-                @change="${this._valueChanged}"
-              >
-                Main Config
-              </paper-toggle-button>
-              <paper-toggle-button
-                ?checked="${this._background_image !== false}"
-                .configValue="${"background_image"}"
-                @change="${this._valueChanged}"
-              >
-                Background Fix
-              </paper-toggle-button>
-            `
-          : ""}
+        <paper-toggle-button
+          class="${this.exception && this.config.chevrons === undefined
+        ? "inherited"
+        : ""}"
+          ?checked="${this._chevrons !== false}"
+          .configValue="${"chevrons"}"
+          @change="${this._valueChanged}"
+        >
+          Display Tab Chevrons
+        </paper-toggle-button>
+        <paper-toggle-button
+          class="${this.exception && this.config.redirect === undefined
+        ? "inherited"
+        : ""}"
+          ?checked="${this._redirect !== false}"
+          .configValue="${"redirect"}"
+          @change="${this._valueChanged}"
+        >
+          Hidden Tab Redirect
+        </paper-toggle-button>
       </div>
 
       <h4>Button Visibility:</h4>
       <div class="buttons side-by-side">
         <div
           class="${this.exception && this.config.menu === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
         >
           <iron-icon icon="hass:menu"></iron-icon>
           <paper-dropdown-menu
@@ -404,17 +424,17 @@ export class CchConfigEditor extends LitElement {
               .selected="${buttonOptions.indexOf(this._menu)}"
             >
               ${buttonOptions.map(option => {
-                return html`
+      return html`
                   <paper-item>${option}</paper-item>
                 `;
-              })}
+    })}
             </paper-listbox>
           </paper-dropdown-menu>
         </div>
         <div
           class="${this.exception && this.config.notifications === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
         >
           <iron-icon icon="hass:bell"></iron-icon>
           <paper-dropdown-menu
@@ -427,17 +447,17 @@ export class CchConfigEditor extends LitElement {
               .selected="${buttonOptions.indexOf(this._notifications)}"
             >
               ${buttonOptions.map(option => {
-                return html`
+      return html`
                   <paper-item>${option}</paper-item>
                 `;
-              })}
+    })}
             </paper-listbox>
           </paper-dropdown-menu>
         </div>
         <div
           class="${this.exception && this.config.voice === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
         >
           <iron-icon icon="hass:microphone"></iron-icon>
           <paper-dropdown-menu
@@ -450,17 +470,17 @@ export class CchConfigEditor extends LitElement {
               .selected="${buttonOptions.indexOf(this._voice)}"
             >
               ${buttonOptions.map(option => {
-                return html`
+      return html`
                   <paper-item>${option}</paper-item>
                 `;
-              })}
+    })}
             </paper-listbox>
           </paper-dropdown-menu>
         </div>
         <div
           class="${this.exception && this.config.options === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
         >
           <iron-icon icon="hass:dots-vertical"></iron-icon>
           <paper-dropdown-menu
@@ -473,10 +493,10 @@ export class CchConfigEditor extends LitElement {
               .selected="${overflowOptions.indexOf(this._options)}"
             >
               ${overflowOptions.map(option => {
-                return html`
+      return html`
                   <paper-item>${option}</paper-item>
                 `;
-              })}
+    })}
             </paper-listbox>
           </paper-dropdown-menu>
         </div>
@@ -487,9 +507,9 @@ export class CchConfigEditor extends LitElement {
             <div class="side-by-side">
               <paper-dropdown-menu
                 class="${this.exception &&
-                this.config.clock_format === undefined
-                  ? "inherited"
-                  : ""}"
+        this.config.clock_format === undefined
+            ? "inherited"
+            : ""}"
                 label="Clock format"
                 @value-changed="${this._valueChanged}"
                 .configValue="${"clock_format"}"
@@ -505,8 +525,8 @@ export class CchConfigEditor extends LitElement {
               <div class="side-by-side">
               <paper-toggle-button
                 class="${this.exception && this.config.clock_am_pm === undefined
-                  ? "inherited"
-                  : ""}"
+            ? "inherited"
+            : ""}"
                 ?checked="${this._clock_am_pm !== false}"
                 .configValue="${"clock_am_pm"}"
                 @change="${this._valueChanged}"
@@ -515,8 +535,8 @@ export class CchConfigEditor extends LitElement {
               >
               <paper-toggle-button
                 class="${this.exception && this.config.clock_date === undefined
-                  ? "inherited"
-                  : ""}"
+            ? "inherited"
+            : ""}"
                 ?checked="${this._clock_date !== false}"
                 .configValue="${"clock_date"}"
                 @change="${this._valueChanged}"
@@ -543,8 +563,8 @@ export class CchConfigEditor extends LitElement {
       >
         <paper-input
           class="${this.exception && this.config.show_tabs === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
           label="Comma-separated list of tab numbers to show:"
           .value="${this._show_tabs}"
           .configValue="${"show_tabs"}"
@@ -558,8 +578,8 @@ export class CchConfigEditor extends LitElement {
       >
         <paper-input
           class="${this.exception && this.config.hide_tabs === undefined
-            ? "inherited"
-            : ""}"
+        ? "inherited"
+        : ""}"
           label="Comma-separated list of tab numbers to hide:"
           .value="${this._hide_tabs}"
           .configValue="${"hide_tabs"}"
@@ -597,7 +617,7 @@ export class CchConfigEditor extends LitElement {
         this.config = {
           ...this.config,
           [target.configValue]:
-            target.checked !== undefined ? target.checked : target.value
+              target.checked !== undefined ? target.checked : target.value
         };
       }
     }
@@ -709,7 +729,7 @@ export class CchExceptionEditor extends LitElement {
         <div class="card-content">
           <div class="card-header">
             ${Object.values(this.exception.conditions).join(", ") ||
-              "New Exception"}
+    "New Exception"}
             <paper-icon-button
               icon="${this._closed ? "mdi:chevron-down" : "mdi:chevron-up"}"
               @click="${this._toggleCard}"
