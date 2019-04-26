@@ -20,7 +20,12 @@ cards:
   - type: media-control
     entity: media_player.google_chromecast
   - type: media-control
-    entity: media_player.bedroom_home_mini
+    entity: media_player.kitchen_home_mini
+  - type: media-control
+    entity: media_player.bedroom_home_hub
+  - type: media-control
+    entity: media_player.sony_bravia_tv
+
 badges:
   - sensor.data_savings
   - sensor.daily_step_count
