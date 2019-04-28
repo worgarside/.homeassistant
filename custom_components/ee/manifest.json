@@ -1,0 +1,13 @@
+{
+  "domain": "ee",
+  "name": "EE Data Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements":  [
+    "beautifulsoup4", "python-dotenv", "wg-utilities"
+  ],
+  "dependencies": {
+
+  }
+}

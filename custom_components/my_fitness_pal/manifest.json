@@ -1,0 +1,11 @@
+{
+  "domain": "my_fitness_pal",
+  "name": "MyFitnessPal Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": ["myfitnesspal", "python-dotenv"],
+  "dependencies": {
+
+  }
+}

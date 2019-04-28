@@ -1,0 +1,14 @@
+{
+  "domain": "hass_stats",
+  "name": "HAss Stats Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": [
+    "python-dotenv",
+    "psycopg2-binary"
+  ],
+  "dependencies": {
+
+  }
+}

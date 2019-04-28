@@ -1,0 +1,15 @@
+{
+  "domain": "google_fit",
+  "name": "Google Fit Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": [
+    "google-auth-oauthlib",
+    "google-api-python-client",
+    "python-dotenv"
+  ],
+  "dependencies": {
+
+  }
+}
