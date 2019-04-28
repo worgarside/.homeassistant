@@ -11,6 +11,7 @@ cards:
     entities:
       - entity: light.bedroom
       - entity: light.study
+      - entity: light.kitchen
   - type: media-control
     entity: media_player.all_speakers
   - type: media-control

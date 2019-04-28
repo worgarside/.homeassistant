@@ -1,0 +1,11 @@
+{
+  "domain": "strava",
+  "name": "Strava Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": ["requests", "python-dotenv"],
+  "dependencies": {
+
+  }
+}

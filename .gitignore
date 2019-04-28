@@ -12,3 +12,4 @@ home-assistant.log
 .HA_VERSION
 known_devices.yaml
 *.pkl
+*.conf
