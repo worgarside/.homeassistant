@@ -1,5 +1,5 @@
 title: Pi Monitoring
-icon: mdi:raspberrypi
+icon: mdi:raspberry-pi
 panel: true
 cards:
   - type: horizontal-stack
@@ -203,4 +203,70 @@ cards:
             icon: mdi:weight
             entities:
               - entity: sensor.datapi_load_15m
+                color: '#444444'
+
+      - type: custom:vertical-stack-in-card
+        title: CRT-Pi
+        cards:
+          - type: custom:mini-graph-card
+            name: Resource Usage
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 180
+            icon: mdi:speedometer
+            show:
+              state: false
+            entities:
+              - entity: sensor.crt_pi_cpu_usage
+                color: '#d13737'
+              - entity: sensor.crt_pi_memory_usage
+                color: '#38d138'
+              - entity: sensor.crt_pi_disk_usage
+                color: '#373cd1'
+
+          - type: custom:mini-graph-card
+            name: CPU Temperature
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 100
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 150
+            entities:
+              - entity: sensor.crt_pi_cpu_temp
+            color_thresholds:
+              - value: 40
+                color: '#38D138'
+              - value: 45
+                color: '#4EBB38'
+              - value: 50
+                color: '#64A538'
+              - value: 55
+                color: '#7A8F38'
+              - value: 60
+                color: '#8F7937'
+              - value: 65
+                color: '#A56337'
+              - value: 70
+                color: '#BB4D37'
+              - value: 75
+                color: '#D13737'
+
+          - type: custom:mini-graph-card
+            name: Load (15m)
+            hours_to_show: 3
+            lower_bound: 0
+            upper_bound: 4
+            animate: true
+            points_per_hour: 60
+            line_width: 2
+            height: 75
+            icon: mdi:weight
+            entities:
+              - entity: sensor.crt_pi_load_15m
                 color: '#444444'
