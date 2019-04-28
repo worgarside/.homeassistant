@@ -66,6 +66,6 @@ class DatabaseRowCountSensor(Entity):
 
         con = connect(HASS_DB_URL)
         cur = con.cursor()
-        cur.execute("SELECT COUNT(*) FROM states")
+        cur.execute("SELECT COUNT(state_id) FROM states")
 
         self._state = int(cur.fetchone()[0])

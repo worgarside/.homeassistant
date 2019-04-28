@@ -1,0 +1,15 @@
+{
+  "domain": "monzo",
+  "name": "Monzo Integration",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": [
+    "wg-utilities",
+    "python-dotenv",
+    "requests"
+  ],
+  "dependencies": {
+
+  }
+}

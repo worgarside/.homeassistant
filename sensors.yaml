@@ -32,7 +32,7 @@
 
 # ==================== MQTT ==================== #
 
-# ------------------- DHT_22 ------------------- #
+# ------------------- Prusa DHT_22 ------------------- #
 
 - platform: mqtt
   name: "Prusa Mk3 Ambient Temperature"
@@ -139,5 +139,37 @@
 - platform: mqtt
   name: "DataPi Load (15m)"
   state_topic: !secret datapi_stats_mqtt_topic
+  unit_of_measurement: ' '
+  value_template: "{{ value_json.load_15m }}"
+
+# ------------------- CRT-Pi ------------------- #
+
+- platform: mqtt
+  name: "CRT-Pi CPU Temp"
+  state_topic: !secret crt-pi_stats_mqtt_topic
+  unit_of_measurement: '°C'
+  value_template: "{{ value_json.temperature }}"
+
+- platform: mqtt
+  name: "CRT-Pi Disk Usage"
+  state_topic: !secret crt-pi_stats_mqtt_topic
+  unit_of_measurement: '%'
+  value_template: "{{ value_json.disk_usage_percent }}"
+
+- platform: mqtt
+  name: "CRT-Pi Memory Usage"
+  state_topic: !secret crt-pi_stats_mqtt_topic
+  unit_of_measurement: '%'
+  value_template: "{{ value_json.memory_usage }}"
+
+- platform: mqtt
+  name: "CRT-Pi CPU Usage"
+  state_topic: !secret crt-pi_stats_mqtt_topic
+  unit_of_measurement: '%'
+  value_template: "{{ value_json.cpu_usage }}"
+
+- platform: mqtt
+  name: "CRT-Pi Load (15m)"
+  state_topic: !secret crt-pi_stats_mqtt_topic
   unit_of_measurement: ' '
   value_template: "{{ value_json.load_15m }}"

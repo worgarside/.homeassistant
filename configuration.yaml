@@ -27,6 +27,7 @@ recorder:
       - light.group_for_wakeup
       - light.bedroom_hue_color_lamp
       - light.study_hue_color_lamp
+      - light.kitchen_hue_white_lamp
       - zone.home
       - group.all_devices
       - updater.updater
@@ -41,9 +42,10 @@ recorder:
       - camera.prusa_i3_mk3
       - persistent_notification.homeassistant_check_config
       - sensor.custom_component_tracker
+      - binary_sensor.remote_ui
 
 tts:
-  - platform: google
+  - platform: google_translate
 
 panel_iframe:
   octoprint:
@@ -58,6 +60,13 @@ frontend:
 http:
   base_url: !secret base_url
   cors_allowed_origins: !secret cors_allowed_origins
+
+media_player:
+  - platform: plex
+    use_episode_art: true
+    entity_namespace: plex
+  - platform: braviatv
+    host: !secret bravia_ip
 
 # ==================== OctoPrint ==================== #
 
