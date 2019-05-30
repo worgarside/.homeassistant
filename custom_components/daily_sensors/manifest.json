@@ -1,0 +1,13 @@
+{
+  "domain": "daily_sensors",
+  "name": "Daily Sensor Summaries",
+  "codeowners": [
+    "worgarside"
+  ],
+  "requirements": [
+    "python-dotenv", "psycopg2-binary"
+  ],
+  "dependencies": {
+
+  }
+}
