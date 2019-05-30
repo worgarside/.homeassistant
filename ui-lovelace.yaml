@@ -20,4 +20,5 @@ views:
   - !include lovelace/home.yaml
   - !include lovelace/makerspace.yaml
   - !include lovelace/pi_monitoring.yaml
+  - !include lovelace/fitness.yaml
   - !include lovelace/admin.yaml
