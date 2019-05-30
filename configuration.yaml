@@ -41,6 +41,8 @@ recorder:
       - persistent_notification.homeassistant_check_config
       - sensor.custom_component_tracker
       - binary_sensor.remote_ui
+      - sensor.habitica_worgarside_name
+      - light.greenhouse
 
 tts:
   - platform: google_translate
@@ -75,12 +77,24 @@ octoprint:
   bed: true
   number_of_tools: 1
 
+habitica:
+  - api_user: !secret habitica_user
+    api_key: !secret habitica_key
+    name: !secret habitica_name
+
 camera:
   - platform: mjpeg
     name: Prusa i3 Mk3
     still_image_url: !secret octoprint_snapshot
     mjpeg_url: !secret octoprint_stream
 
+speedtestdotnet:
+  scan_interval:
+    minutes: 30
+  monitored_conditions:
+    - ping
+    - download
+    - upload
 
 mqtt:
   broker: !secret mqtt_host
