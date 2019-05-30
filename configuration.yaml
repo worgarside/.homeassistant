@@ -7,7 +7,6 @@ homeassistant:
   time_zone: UTC
   customize: !include customize.yaml
   auth_providers:
-#    - type: legacy_api_password
     - type: homeassistant
 
 lovelace:
@@ -27,7 +26,6 @@ recorder:
       - light.group_for_wakeup
       - light.bedroom_hue_color_lamp
       - light.study_hue_color_lamp
-      - light.kitchen_hue_white_lamp
       - zone.home
       - group.all_devices
       - updater.updater

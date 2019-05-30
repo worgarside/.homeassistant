@@ -11,8 +11,6 @@ resources:
     type: module
   - url: /local/tracker-card.js
     type: js
-  - type: css
-    url: 'https://fonts.googleapis.com/css?family=Raleway'
   - url: /local/compact-custom-header.js?v=0.0.1
     type: module
 
