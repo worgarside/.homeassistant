@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-from os import path, getenv
+from os import path
 from time import mktime
 
 from homeassistant.const import MASS_KILOGRAMS
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 from wg_utilities.references.constants import HOMEASSISTANT
-from wg_utilities.helpers.functions import get_proj_dirs, log
+from wg_utilities.helpers.functions import get_proj_dirs
 from dotenv import load_dotenv
 
 REQUIREMENTS = ['google-auth-oauthlib', 'google-api-python-client', 'python-dotenv']
@@ -15,20 +15,11 @@ _, SECRET_FILES_DIR, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSIST
 
 load_dotenv(ENV_FILE)
 
-PSQL_CREDS = {
-    'db_user': getenv('HASS_DB_USER'),
-    'db_password': getenv('HASS_DB_PASSWORD'),
-    'db_host': getenv('DATAPI_LOCAL_IP'),
-    'db_name': getenv('SECONDARY_DB_NAME')
-}
-
-CLIENT_SECRETS_FILE = '{}google_client_secrets.json'.format(SECRET_FILES_DIR)
 CREDENTIALS_FILE = '{}google_credentials.json'.format(SECRET_FILES_DIR)
 
 USER_ID = 'me'
 API_SERVICE_NAME = 'fitness'
 API_VERSION = 'v1'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 SCOPES = ['https://www.googleapis.com/auth/fitness.activity.read',
           'https://www.googleapis.com/auth/fitness.body.read',
           'https://www.googleapis.com/auth/fitness.location.read',

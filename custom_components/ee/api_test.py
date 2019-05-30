@@ -5,7 +5,7 @@ from math import ceil
 from time import sleep
 from re import sub
 
-DATA_LIMIT = 200.00
+DATA_LIMIT = 300.00
 
 
 def get_remaining_data():

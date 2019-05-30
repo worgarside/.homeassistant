@@ -32,6 +32,8 @@
 
 - platform: daily_sensors
 
+- platform: my_fitness_pal
+
 # ==================== MQTT ==================== #
 
 # ------------------- Prusa DHT_22 ------------------- #
