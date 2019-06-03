@@ -1,9 +1,14 @@
+# ==================== Third Party ==================== #
+
 - platform: darksky
   api_key: !secret darksky_api_key
   monitored_conditions:
     - summary
     - precip_intensity
     - temperature
+    - pressure
+    - humidity
+    - visibility
 
 - platform: uptime
   name: Time Online
