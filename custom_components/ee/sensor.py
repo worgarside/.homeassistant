@@ -11,7 +11,7 @@ _, _, ENV_FILE = get_proj_dirs(path.abspath(__file__), HOMEASSISTANT)
 load_dotenv(ENV_FILE)
 
 PB_API_KEY = getenv('PB_API_KEY')
-DATA_LIMIT = 200.00
+DATA_LIMIT = 300.00
 
 EE_URL = 'http://add-on.ee.co.uk/mbbstatus'
 
