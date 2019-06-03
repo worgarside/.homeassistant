@@ -13,6 +13,9 @@ NOW = datetime.now()
 
 
 def get_calories_consumed(t):
+    from pprint import pprint
+
+    pprint(t)
     return t.totals['calories']
 
 

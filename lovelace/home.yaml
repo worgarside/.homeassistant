@@ -7,11 +7,14 @@ cards:
     voice: hide
   - show_header_toggle: true
     type: entities
-    title: Light
+    title: Lights
     entities:
       - entity: light.bedroom
       - entity: light.study
-      - entity: light.kitchen
+      - entity: light.kitchen_hue_white_lamp
+        name: Kitchen Lamp
+      - entity: light.shelf_backlight
+        name: Kitchen Shelf Light
   - type: media-control
     entity: media_player.all_speakers
   - type: media-control
@@ -31,6 +34,5 @@ badges:
   - sensor.data_savings
   - sensor.daily_step_count
   - sensor.dark_sky_temperature
-  - sensor.ytd_run_time
   - sensor.data_allowance
   - sensor.used_data

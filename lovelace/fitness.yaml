@@ -1,0 +1,78 @@
+title: Admin
+icon: mdi:google-fit
+panel: true
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: custom:compact-custom-header
+        background_image: true
+        voice: hide
+
+      - type: custom:vertical-stack-in-card
+        title: Activity
+        cards:
+          - type: custom:mini-graph-card
+            name: Daily Step Count Summary
+            hours_to_show: 672
+            lower_bound: 0
+            icon: mdi:shoe-print
+            animate: true
+            points_per_hour: 0.08
+            line_width: 2
+            height: 200
+            show:
+              fill: false
+              state: false
+            entities:
+              - entity: sensor.daily_step_count_summary
+
+          - type: custom:mini-graph-card
+            name: Distance Run
+            hours_to_show: 672
+            lower_bound: 0
+            icon: mdi:run
+            animate: true
+            points_per_hour: 0.08
+            line_width: 2
+            height: 200
+            show:
+              fill: false
+              state: false
+            entities:
+              - entity: sensor.cumulative_run_distance
+
+      - type: custom:vertical-stack-in-card
+        title: Health
+        cards:
+        - type: custom:mini-graph-card
+          name: Body Weight
+          hours_to_show: 672
+          lower_bound: 0
+          icon: mdi:scale-bathroom
+          animate: true
+          points_per_hour: 0.08
+          line_width: 2
+          height: 200
+          show:
+            fill: false
+            state: false
+          entities:
+            - entity: sensor.body_weight
+
+        - type: custom:mini-graph-card
+          name: Calories
+          hours_to_show: 672
+          lower_bound: 0
+          icon: mdi:scale-bathroom
+          animate: true
+          points_per_hour: 0.08
+          line_width: 2
+          height: 200
+          show:
+            fill: false
+            state: false
+          entities:
+            - entity: sensor.calories_consumed
+              color: '#ff0000'
+            - entity: sensor.calories_expended
+              color: '#00ff00'
